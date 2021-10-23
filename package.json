@@ -1,0 +1,23 @@
+{
+  "name": "lab",
+  "version": "1.0.0",
+  "description": "LAB",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HuyenVu2210/NJS101x_01-A_VN.git"
+  },
+  "author": "huyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HuyenVu2210/NJS101x_01-A_VN/issues"
+  },
+  "homepage": "https://github.com/HuyenVu2210/NJS101x_01-A_VN#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  }
+}
