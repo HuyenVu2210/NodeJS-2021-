@@ -19,5 +19,8 @@
   "homepage": "https://github.com/HuyenVu2210/NJS101x_01-A_VN#readme",
   "devDependencies": {
     "nodemon": "^2.0.14"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }
