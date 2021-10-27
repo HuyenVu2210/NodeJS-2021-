@@ -6,8 +6,8 @@ block styles
 block content 
     main 
         if prods.length > 0
-            each product in prods
-                div.grid
+            div.grid
+                each product in prods
                     article.card.product-item
                         header.card__header
                         h1.product__title #{product.title}
@@ -17,7 +17,7 @@ block content
                             h2.product__price $19.99
                             p.product__description A very interesting book about so many even more interesting things!
                         div.card__actions
-                            button.btn Add to Cart 
+                        button.btn Add to Cart 
         else 
             h1 No product.
 
