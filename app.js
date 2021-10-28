@@ -3,8 +3,12 @@ const bodyParser = require("body-parser");
 const path = require("path");
 // const rootDir = require('./util/path');
 
+// Routes
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+
+// Controllers
+const errorsController = require('./controllers/errors')
 
 const app = express();
 
@@ -17,8 +21,6 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 
-app.use("/", (req, res, next) => {
-  res.render("404", { docTitle: "Page not found", path: null });
-});
+app.use("/", errorsController.get404);
 
 app.listen(3000);
