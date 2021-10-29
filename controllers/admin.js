@@ -18,7 +18,7 @@ exports.postAddProduct = (req, res, next) => {
   res.redirect("/products");
 };
 
-exports.getEditProducts = (req, res, next) => {
+exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
   if(!editMode) {
     return res.redirect('/')
@@ -36,6 +36,10 @@ exports.getEditProducts = (req, res, next) => {
       product: product
     });
   })
+};
+
+exports.postEditProduct = (req, res, next) => {
+  res.redirect("/products");
 };
 
 exports.getProducts = (req, res, next) => {
