@@ -1,6 +1,6 @@
 const Products = require("../models/product");
 
-exports.getProduct = (req, res, next) => {
+exports.getProducts = (req, res, next) => {
   Products.fetchAll((products) => {
     res.render("shop/product-list", {
       prods: products,
@@ -9,6 +9,12 @@ exports.getProduct = (req, res, next) => {
     });
   });
 };
+
+exports.getProduct = (req, res, next) => {
+  const prodId = req.params.productId;
+  console.log(prodId);
+  res.redirect('/');
+}
 
 exports.getIndex = (req, res, next) => {
   Products.fetchAll((products) => {
