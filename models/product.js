@@ -17,7 +17,8 @@ const getProductsFromFile = (cb) => {
 };
 
 module.exports = class Product {
-  constructor(title, imageUrl, description, price) {
+  constructor(id, title, imageUrl, description, price) {
+    this.id = id;
     this.title = title;
     this.imageUrl = imageUrl;
     this.description = description;
@@ -25,14 +26,37 @@ module.exports = class Product {
   }
 
   save() {
-    this.id = Math.random().toString();
     getProductsFromFile((products) => {
-      products.push(this);
-      fs.writeFile(p, JSON.stringify(products), (err) => {
-        console.log(err);
-      });
+      // check if product already existed
+      if (this.id) {
+        console.log('thisId' + this.id);
+        const existingProductIndex = products.findIndex(product => product.id === this.id );
+        console.log('index' + existingProductIndex);
+        // deep copy products array
+        const updatedProducts = [...products];
+
+        // change the existing product to this (updated product)
+        updatedProducts[existingProductIndex] = this;
+        // console.log(updatedProducts);
+
+        // change the products array to updatedProducts
+        fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
+          console.log(err + ' edit failed');
+        });
+      } else {
+        this.id = Math.random().toString();
+
+        // add new product to products array
+        products.push(this);
+
+        // change to new products array
+        fs.writeFile(p, JSON.stringify(products), (err) => {
+          console.log(err + ' save failed');
+        });
+      }
     });
   }
+
 
   static fetchAll(cb) {
     getProductsFromFile(cb);
