@@ -10,9 +10,15 @@ const shopRoutes = require("./routes/shop");
 // Controllers
 const errorsController = require('./controllers/errors')
 
+// Database
+const db = require('./util/database');
+
+// Create app
 const app = express();
 
 app.set("view engine", "ejs");
+
+db.execute('SELECT * FROM Products');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
