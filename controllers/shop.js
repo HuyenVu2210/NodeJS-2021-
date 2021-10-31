@@ -32,6 +32,8 @@ exports.getIndex = (req, res, next) => {
   });
 };
 
+// Cart
+
 exports.getCart = (req, res, next) => {
   Cart.getCart(cart => {
     Products.fetchAll(products => {
@@ -51,6 +53,14 @@ exports.postCart =  (req, res, next) => {
   const prodId = req.body.productId;
   Products.fetchProductById(prodId, product => {
     Cart.addToCart(product.id, product.price);
+    res.redirect('/cart');
+  })
+}
+
+exports.deleteCartProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  Products.fetchProductById(prodId, product => {
+    Cart.deleteById(prodId, product.price);
     res.redirect('/cart');
   })
 }
