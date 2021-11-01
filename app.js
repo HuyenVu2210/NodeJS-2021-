@@ -18,14 +18,6 @@ const app = express();
 
 app.set("view engine", "ejs");
 
-db.execute('SELECT * FROM products')
-.then(results => {
-    console.log(results[0], results[1])
-})
-.catch(err => {
-    console.log(err)
-});
-
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, "public")));

@@ -2,12 +2,17 @@ const Products = require("../models/product");
 const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
-  Products.fetchAll((products) => {
-    res.render("shop/product-list", {
-      prods: products,
-      docTitle: "All products",
-      path: "/products",
-    });
+  Products.fetchAll()
+  .then(([rows, tableData]) => {
+    console.log(rows);
+    res.render('shop/product-list', {
+      prods: rows,
+      docTitle: 'Shop',
+      path: '/products'
+    })
+  })
+  .catch(err => {
+    console.log(err)
   });
 };
 
