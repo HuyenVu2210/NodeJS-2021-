@@ -18,7 +18,7 @@ const app = express();
 
 app.set("view engine", "ejs");
 
-db.execute('SELECT * FROM Products');
+db.execute('SELECT * FROM Products').then().catch();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
