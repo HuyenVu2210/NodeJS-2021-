@@ -1,4 +1,4 @@
-const Products = require("../models/product");
+const Product = require("../models/product");
 
 exports.getAddProduct = (req, res, next) => {
   res.render("admin/edit-product", {
@@ -8,20 +8,26 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
+
+// Add product 
 exports.postAddProduct = (req, res, next) => {
   const title = req.body.title;
   const imageUrl = req.body.imageUrl;
   const description = req.body.description;
   const price = req.body.price;
-  const products = new Products(false, title, imageUrl, description, price);
-  products
-    .save()
-    .then(() => {
-      res.redirect("/products");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  Product.create({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl
+  })
+  .then(results => {
+    // console.log(results);
+    console.log('product created!')
+  })
+  .catch(err => {
+    console.log(err)
+  })
 };
 
 exports.getEditProduct = (req, res, next) => {
