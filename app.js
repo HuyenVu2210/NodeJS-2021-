@@ -8,10 +8,10 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
 // Controllers
-const errorsController = require('./controllers/errors')
+const errorsController = require("./controllers/errors");
 
 // Database
-const db = require('./util/database');
+const sequelize = require("./util/database");
 
 // Create app
 const app = express();
@@ -27,4 +27,12 @@ app.use(shopRoutes);
 
 app.use("/", errorsController.get404);
 
-app.listen(3000);
+sequelize
+  .sync()
+  .then((results) => {
+    // console.log(results);
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
