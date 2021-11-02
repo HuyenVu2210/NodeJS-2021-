@@ -23,6 +23,7 @@ exports.postAddProduct = (req, res, next) => {
     .then((results) => {
       // console.log(results);
       console.log("product created!");
+      res.redirect("/admin/products");
     })
     .catch((err) => {
       console.log(err);
@@ -71,22 +72,29 @@ exports.postEditProduct = (req, res, next) => {
       return product.save();
     })
     .then((results) => {
-      console.log('edited product');
+      console.log("edited product");
       res.redirect("/admin/products");
       // console.log(results);
     })
     .catch((err) => {
-      console.log('save in post edit failed: ' + err);
-    })
-    .catch((err) => {
-      console.log('post edit failed: ' + err);
+      console.log("post edit failed: " + err);
     });
 };
 
+// delete product
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Products.deleteById(prodId);
-  res.redirect("/admin/products");
+  Product.findByPk(prodId)
+    .then((product) => {
+      return product.destroy();
+    })
+    .then((results) => {
+      console.log("deleted product");
+      res.redirect("/admin/products");
+    })
+    .catch((err) => {
+      console.log("delete product failed" + err);
+    });
 };
 
 // get all products ==> /admin/products
