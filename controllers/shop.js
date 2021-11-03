@@ -87,73 +87,98 @@ exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   let fetchedCart;
   let newQuantity;
-  req.user.getCart()
-  .then(cart => {
-    fetchedCart = cart;
-    return cart.getProducts({ where: { id: prodId } })
-  })
-  .then((products) => {
-    let product;
-    newQuantity = 1;
-    if (products.length > 0) {
-      product = products[0]
-    }
+  req.user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts({ where: { id: prodId } });
+    })
+    .then((products) => {
+      let product;
+      newQuantity = 1;
+      if (products.length > 0) {
+        product = products[0];
+      }
 
-    // if product already in the cart
-    if (product) {
-      const oldQuantity = product.cart_item.quantity;
-      newQuantity = oldQuantity + 1;
-      // console.log(oldQuantity, newQuantity)
-      return product  // this return product to get executed in the next then
-    }
-    return Product.findByPk(prodId);  // this return product also get executed in the next line
-  })
-  .then(product => {
-    return fetchedCart.addProduct(product, { through: { quantity: newQuantity } });
-  })
-  .then(() => {
-    res.redirect('/cart')
-  })
-  .catch(err => {
-    console.log(err)
-  })
+      // if product already in the cart
+      if (product) {
+        const oldQuantity = product.cart_item.quantity;
+        newQuantity = oldQuantity + 1;
+        // console.log(oldQuantity, newQuantity)
+        return product; // this return product to get executed in the next then
+      }
+      return Product.findByPk(prodId); // this return product also get executed in the next line
+    })
+    .then((product) => {
+      return fetchedCart.addProduct(product, {
+        through: { quantity: newQuantity },
+      });
+    })
+    .then(() => {
+      res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // Delete from cart
 exports.deleteCartProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  req.user.getCart().then(cart => {
-    return cart.getProducts({ where: {id: prodId}})
-  })
-  .then(products => {
-    const product = products[0];
-    return product.cart_item.destroy()
-  })
-  .then(results => {
-    console.log('deleted from cart')
-    res.redirect('/cart');
-  })
-  .catch(err => {console.log(err)})
+  req.user
+    .getCart()
+    .then((cart) => {
+      return cart.getProducts({ where: { id: prodId } });
+    })
+    .then((products) => {
+      const product = products[0];
+      return product.cart_item.destroy();
+    })
+    .then((results) => {
+      console.log("deleted from cart");
+      res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 exports.postOrder = (req, res, next) => {
   let products;
-  req.user.getCart()
-  .then(cart => {
-    return cart.getProducts();
-  })
-  .then(prods => {
-    products = prods;
-    return req.user.createOrder() 
-  })
-  .then(order => {
-    return order.addProducts(products.map(product => {
-      product.order_item = { quantity: product.cart_item.quantity };
-      return product;
-    }))
-  })
-  .then(results => {
-    res.render("shop/orders", { path: "/orders", docTitle: "Your orders" });
+  let fetchedCart;
+  req.user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts();
+    })
+    .then((prods) => {
+      products = prods;
+      return req.user.createOrder();
+    })
+    .then((order) => {
+      return order.addProducts(
+        products.map((product) => {
+          product.order_item = { quantity: product.cart_item.quantity };
+          return product;
+        })
+      );
+    })
+    .then((results) => {
+      return fetchedCart.setProducts(null);
+    })
+    .then((results) => {
+      res.render("shop/orders", { path: "/orders", docTitle: "Your orders" });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+exports.getOrders = (req, res, next) => {
+  req.user.getOrders({include: ['products']})
+  .then(orders => {
+    res.render("shop/orders", { path: "/orders", docTitle: "Orders", orders: orders });
   })
   .catch(err => {
     console.log(err)
