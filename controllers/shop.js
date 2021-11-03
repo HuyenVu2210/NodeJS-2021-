@@ -119,12 +119,21 @@ exports.postCart = (req, res, next) => {
   })
 };
 
+// Delete from cart
 exports.deleteCartProduct = (req, res, next) => {
   const prodId = req.body.productId;
-  Products.fetchProductById(prodId, (product) => {
-    Cart.deleteById(prodId, product.price);
-    res.redirect("/cart");
-  });
+  req.user.getCart().then(cart => {
+    return cart.getProducts({ where: {id: prodId}})
+  })
+  .then(products => {
+    const product = products[0];
+    return product.cart_item.destroy()
+  })
+  .then(results => {
+    console.log('deleted from cart')
+    res.redirect('/cart');
+  })
+  .catch(err => {console.log(err)})
 };
 
 exports.getOrders = (req, res, next) => {
