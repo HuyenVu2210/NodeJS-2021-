@@ -136,8 +136,28 @@ exports.deleteCartProduct = (req, res, next) => {
   .catch(err => {console.log(err)})
 };
 
-exports.getOrders = (req, res, next) => {
-  res.render("shop/orders", { path: "/orders", docTitle: "Your orders" });
+exports.postOrder = (req, res, next) => {
+  let products;
+  req.user.getCart()
+  .then(cart => {
+    return cart.getProducts();
+  })
+  .then(prods => {
+    products = prods;
+    return req.user.createOrder() 
+  })
+  .then(order => {
+    return order.addProducts(products.map(product => {
+      product.order_item = { quantity: product.cart_item.quantity };
+      return product;
+    }))
+  })
+  .then(results => {
+    res.render("shop/orders", { path: "/orders", docTitle: "Your orders" });
+  })
+  .catch(err => {
+    console.log(err)
+  })
 };
 
 exports.getCheckout = (req, res, next) => {
