@@ -11,7 +11,7 @@ const adminRoutes = require("./routes/admin");
 // const errorsController = require("./controllers/errors");
 
 // Database
-const mongoConnect = require('./util/database');
+const mongoConnect = require('./util/database').mongoConnect;
 
 // Create app
 const app = express();
@@ -21,6 +21,7 @@ app.set("view engine", "ejs");
 // Store user in request
 app.use((req, res, next) => {
   //
+  next()
 })
 
 app.use(bodyParser.urlencoded({ extended: false }));
