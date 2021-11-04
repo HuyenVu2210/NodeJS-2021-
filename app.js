@@ -8,7 +8,7 @@ const adminRoutes = require("./routes/admin");
 // const shopRoutes = require("./routes/shop");
 
 // Controllers
-// const errorsController = require("./controllers/errors");
+const errorsController = require("./controllers/errors");
 
 // Database
 const mongoConnect = require('./util/database').mongoConnect;
@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/admin", adminRoutes);
 // app.use(shopRoutes);
 
-// app.use("/", errorsController.get404);
+app.use("/", errorsController.get404);
 
 mongoConnect(() => {
   app.listen(3000)
