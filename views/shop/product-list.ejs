@@ -27,7 +27,7 @@
                                     </p>
                                 </div>
                                 <div class="card__actions">
-                                    <form action="/product/<%= product.id %>" method="GET">
+                                    <form action="/product/<%= product._id %>" method="GET">
                                         <button class="btn">Details</button>
                                     </form>
                                     <%- include('../includes/add-to-cart.ejs', {product: product}) %>
