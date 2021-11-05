@@ -14,23 +14,23 @@ router.get("/", shopController.getIndex);
 
 router.get('/products', shopController.getProducts);
 
-router.get('/product/:productId', shopController.getProduct);
+// router.get('/product/:productId', shopController.getProduct);
 
-//Cart
+// //Cart
 
-router.get('/cart', shopController.getCart);
+// router.get('/cart', shopController.getCart);
 
-router.post('/cart', shopController.postCart);
+// router.post('/cart', shopController.postCart);
 
-router.post('/delete-cart-product', shopController.deleteCartProduct);
+// router.post('/delete-cart-product', shopController.deleteCartProduct);
 
-// Order
-router.post('/orders', shopController.postOrder);
+// // Order
+// router.post('/orders', shopController.postOrder);
 
-router.get('/orders', shopController.getOrders);
+// router.get('/orders', shopController.getOrders);
 
 
 
-router.get('/checkout', shopController.getCheckout);
+// router.get('/checkout', shopController.getCheckout);
 
 module.exports = router;
