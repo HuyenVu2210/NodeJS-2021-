@@ -83,21 +83,18 @@ exports.postEditProduct = (req, res, next) => {
     });
 };
 
-// // delete product
-// exports.postDeleteProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   Product.findByPk(prodId)
-//     .then((product) => {
-//       return product.destroy();
-//     })
-//     .then((results) => {
-//       console.log("deleted product");
-//       res.redirect("/admin/products");
-//     })
-//     .catch((err) => {
-//       console.log("delete product failed" + err);
-//     });
-// };
+// delete product
+exports.postDeleteProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  Product.deleteById(prodId)
+    .then((results) => {
+      console.log("deleted product");
+      res.redirect("/admin/products");
+    })
+    .catch((err) => {
+      console.log("delete product failed" + err);
+    });
+};
 
 // get all products ==> /admin/products
 exports.getProducts = (req, res, next) => {
