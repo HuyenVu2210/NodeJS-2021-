@@ -22,9 +22,8 @@ class Product {
   }
 
   static fetchAll() {
-    let db = getDb;
-    return db
-      .collection("products")
+    let db = getDb();
+    return db.collection("products")
       .find()
       .toArray()
       .then((products) => {
