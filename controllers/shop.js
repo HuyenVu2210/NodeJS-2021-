@@ -81,63 +81,21 @@ exports.postCart = (req, res, next) => {
     // .catch((err) => {
     //   console.log(err);
     // });
-  // let fetchedCart;
-  // let newQuantity;
-  // req.user
-  //   .getCart()
-  //   .then((cart) => {
-  //     fetchedCart = cart;
-  //     return cart.getProducts({ where: { id: prodId } });
-  //   })
-  //   .then((products) => {
-  //     let product;
-  //     newQuantity = 1;
-  //     if (products.length > 0) {
-  //       product = products[0];
-  //     }
-
-  //     // if product already in the cart
-  //     if (product) {
-  //       const oldQuantity = product.cart_item.quantity;
-  //       newQuantity = oldQuantity + 1;
-  //       // console.log(oldQuantity, newQuantity)
-  //       return product; // this return product to get executed in the next then
-  //     }
-  //     return Product.findByPk(prodId); // this return product also get executed in the next line
-  //   })
-  //   .then((product) => {
-  //     return fetchedCart.addProduct(product, {
-  //       through: { quantity: newQuantity },
-  //     });
-  //   })
-  //   .then(() => {
-  //     res.redirect("/cart");
-  //   })
-  //   .catch((err) => {
-  //     console.log(err);
-  //   });
 };
 
-// // Delete from cart
-// exports.deleteCartProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   req.user
-//     .getCart()
-//     .then((cart) => {
-//       return cart.getProducts({ where: { id: prodId } });
-//     })
-//     .then((products) => {
-//       const product = products[0];
-//       return product.cart_item.destroy();
-//     })
-//     .then((results) => {
-//       console.log("deleted from cart");
-//       res.redirect("/cart");
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// };
+// Delete from cart
+exports.deleteCartProduct = (req, res, next) => {
+  const prodId = req.body.productId;
+  req.user
+    .deleteFromCart(prodId)
+    .then((results) => {
+      console.log("deleted from cart");
+      res.redirect("/cart");
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
 // exports.postOrder = (req, res, next) => {
 //   let products;

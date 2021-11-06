@@ -59,9 +59,20 @@ class User {
 
     let updatedCart = { items: updatedCartItems };
     db.collection("users").updateOne(
-      { _id: this._id },
+      { _id: new ObjectId(this._id) },
       { $set: { cart: updatedCart } }
     );
+  }
+
+  deleteFromCart(prodId) {
+      let updatedCartItems = this.cart.items.filter(item => {
+          return item.productId.toString() !== prodId.toString()
+      });
+      const db = getDb();
+      return db.collection("users").updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: { items: updatedCartItems } } }
+      );
   }
 }
 
