@@ -97,37 +97,16 @@ exports.deleteCartProduct = (req, res, next) => {
     });
 };
 
-// exports.postOrder = (req, res, next) => {
-//   let products;
-//   let fetchedCart;
-//   req.user
-//     .getCart()
-//     .then((cart) => {
-//       fetchedCart = cart;
-//       return cart.getProducts();
-//     })
-//     .then((prods) => {
-//       products = prods;
-//       return req.user.createOrder();
-//     })
-//     .then((order) => {
-//       return order.addProducts(
-//         products.map((product) => {
-//           product.order_item = { quantity: product.cart_item.quantity };
-//           return product;
-//         })
-//       );
-//     })
-//     .then((results) => {
-//       return fetchedCart.setProducts(null);
-//     })
-//     .then((results) => {
-//       res.render("shop/orders", { path: "/orders", docTitle: "Your orders" });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// };
+exports.postOrder = (req, res, next) => {
+  req.user
+    .addOrder()
+    .then((results) => {
+      res.redirect('/orders')
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
 // exports.getOrders = (req, res, next) => {
 //   req.user.getOrders({include: ['products']})
