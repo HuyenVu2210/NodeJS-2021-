@@ -8,7 +8,7 @@ class User {
     this.name = name;
     this.email = email;
     this.cart = cart;
-    this._id = id
+    this._id = id;
   }
 
   save() {
@@ -24,16 +24,34 @@ class User {
       .then((user) => {
         return user;
       })
-      .catch(err => {
-          console.log(err)
+      .catch((err) => {
+        console.log(err);
       });
   }
 
   addToCart(product) {
-      let db = getDb();
-      product.quantity = 1;
-      const updatedCart = {item: [{ productId: product._id, quantity: product.quantity }]}
-      db.collection('users').updateOne({ _id: this._id }, { $set: { cart: updatedCart }})
+    let db = getDb();
+    const cartProductIndex = this.cart.items.findIndex((cp) => {
+      return cp.productId.toString() === product._id.toString();
+    });
+    let newQuantity = 1;
+    let updatedCartItems = [...this.cart.items] ;
+
+    if (cartProductIndex >= 0) {
+      newQuantity = this.cart.items[cartProductIndex].quantity + 1;
+      updatedCartItems[cartProductIndex].quantity = newQuantity;
+    } else {
+      updatedCartItems.push({
+        productId: new ObjectId(product._id),
+        quantity: newQuantity,
+      });
+    }
+
+    let updatedCart = { items: updatedCartItems };
+    db.collection("users").updateOne(
+      { _id: this._id },
+      { $set: { cart: updatedCart } }
+    );
   }
 }
 
