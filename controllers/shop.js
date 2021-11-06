@@ -49,27 +49,23 @@ exports.getIndex = (req, res, next) => {
     });
 };
 
-// // Cart
-// // get cart ==> /cart
-// exports.getCart = (req, res, next) => {
-//   req.user
-//     .getCart()
-//     .then((cart) => {
-//       console.log(cart);
-//       return cart.getProducts();
-//     })
-//     .then((products) => {
-//       // console.log('products in cart: ' + JSON.stringify(products));
-//       res.render("shop/cart", {
-//         path: "/cart",
-//         docTitle: "Your cart",
-//         products: products,
-//       });
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// };
+// Cart
+// get cart ==> /cart
+exports.getCart = (req, res, next) => {
+  req.user
+    .getCart()
+    .then((products) => {
+      // console.log('products in cart: ' + JSON.stringify(products));
+      res.render("shop/cart", {
+        path: "/cart",
+        docTitle: "Your cart",
+        products: products,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
 // add product to cart
 exports.postCart = (req, res, next) => {
