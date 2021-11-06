@@ -24,7 +24,7 @@ app.set("view engine", "ejs");
 // Store user in request
 app.use((req, res, next) => {
   User.findById('6186750a4b187bac5e7c3f14').then(user => {
-    req.user = user;
+    req.user = new User(user.name, user.email, user.cart, user._id);
     next();
   })
   .catch(err => {

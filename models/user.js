@@ -32,7 +32,7 @@ class User {
   addToCart(product) {
       let db = getDb();
       product.quantity = 1;
-      const updatedCart = {item: [product]}
+      const updatedCart = {item: [{ productId: product._id, quantity: product.quantity }]}
       db.collection('users').updateOne({ _id: this._id }, { $set: { cart: updatedCart }})
   }
 }
