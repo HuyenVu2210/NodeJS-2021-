@@ -1,5 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+
+const mongoose = require('mongoose');
+
 const path = require("path");
 // const rootDir = require('./util/path');
 
@@ -12,9 +15,6 @@ const User = require('./models/user');
 
 // Controllers
 const errorsController = require("./controllers/errors");
-
-// Database
-const mongoConnect = require('./util/database').mongoConnect;
 
 // Create app
 const app = express();
@@ -41,6 +41,10 @@ app.use(shopRoutes);
 
 app.use("/", errorsController.get404);
 
-mongoConnect(() => {
+mongoose.connect('mongodb+srv://Kb3X1knoBJT4xRUR:Kb3X1knoBJT4xRUR@cluster0.6lc11.mongodb.net/shop?retryWrites=true&w=majority')
+.then((results) => {
   app.listen(3000)
-});
+})
+.catch(err => {
+  console.log(err)
+})
