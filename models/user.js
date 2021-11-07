@@ -28,7 +28,7 @@ const userSchema = new Schema({
   },
 });
 
-userSchema.methods.addToCart = function(product) {
+userSchema.methods.addToCart = function(product) {      // why arrow function does not get the context of this?
   const cartProductIndex = this.cart.items.findIndex((cp) => {
     return cp.productId.toString() === product._id.toString();
   });
@@ -49,6 +49,14 @@ userSchema.methods.addToCart = function(product) {
   this.cart = updatedCart;
   return this.save();
 };
+
+userSchema.methods.deleteFromCart = function(prodId) {
+  let updatedCartItems = this.cart.items.filter((item) => {
+    return item.productId.toString() !== prodId.toString();
+  });
+  this.cart.items = updatedCartItems;
+  return this.save()
+}
 
 module.exports = mongoose.model('User', userSchema)
 
