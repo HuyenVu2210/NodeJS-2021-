@@ -22,7 +22,8 @@ exports.postAddProduct = (req, res, next) => {
       title: title,
       imageUrl: imageUrl,
       description: description,
-      price: price
+      price: price,
+      userId: req.user._id    // can also only write req.user then mongoose will only extract the _id
   });
   product
     .save()
