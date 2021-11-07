@@ -11,7 +11,7 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
 // user model
-const User = require('./models/user');
+// const User = require('./models/user');
 
 // Controllers
 const errorsController = require("./controllers/errors");
@@ -22,15 +22,15 @@ const app = express();
 app.set("view engine", "ejs");
 
 // Store user in request
-app.use((req, res, next) => {
-  User.findById('6186750a4b187bac5e7c3f14').then(user => {
-    req.user = new User(user.name, user.email, user.cart, user._id);
-    next();
-  })
-  .catch(err => {
-    console.log(err)
-  })
-});
+// app.use((req, res, next) => {
+//   User.findById('6186750a4b187bac5e7c3f14').then(user => {
+//     req.user = new User(user.name, user.email, user.cart, user._id);
+//     next();
+//   })
+//   .catch(err => {
+//     console.log(err)
+//   })
+// });
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
