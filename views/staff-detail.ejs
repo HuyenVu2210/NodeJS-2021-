@@ -1,9 +1,9 @@
-<%- include('../includes/head.ejs') %>
+<%- include('./includes/head.ejs') %>
         <link rel="stylesheet" href="/public/css/product.css">
     </head>
 
     <body>
-        <%- include('../includes/navigation.ejs') %>
+        <%- include('./includes/navigation.ejs') %>
         <main class="centered">
             <h1><%= staff.name %></h1>
             <hr>
@@ -15,5 +15,6 @@
             <p><%= staff.startDate %></p>
             <p><%= staff.department %></p>
             <p><%= staff.annualLeave %></p>
+            <a href="/edit-staff">Edit</a>
         </main>
-        <%- include('../includes/end.ejs') %>
+        <%- include('./includes/end.ejs') %>

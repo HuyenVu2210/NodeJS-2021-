@@ -1,10 +1,10 @@
-<%- include('../includes/head.ejs') %>
+<%- include('./includes/head.ejs') %>
     <link rel="stylesheet" href="/css/forms.css">
     <link rel="stylesheet" href="/css/product.css">
 </head>
 
 <body>
-    <%- include('../includes/navigation.ejs') %>
+    <%- include('./includes/navigation.ejs') %>
     <main class="centered">
         <h1><%= staff.name %></h1>
         <hr>
@@ -14,7 +14,7 @@
         <p><%= staff.department %></p>
         <p><%= staff.annualLeave %></p>
 
-        <form class="product-form" action="/admin/edit-staff" method="POST">
+        <form class="product-form" action="/edit-staff" method="POST">
             <div class="form-control">
                 <label for="image">Image URL</label>
                 <input type="text" name="image" id="image" value="<%= staff.image %>">
@@ -23,4 +23,4 @@
         </form>
     </main>
 
-<%- include('../includes/end.ejs') %>
+<%- include('./includes/end.ejs') %>

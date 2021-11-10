@@ -8,7 +8,7 @@ const path = require("path");
 
 // Routes
 const adminRoutes = require("./routes/admin");
-const shopRoutes = require("./routes/shop");
+// const shopRoutes = require("./routes/shop");
 
 // staff model
 const Staff = require('./models/staff');
@@ -36,8 +36,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/admin", adminRoutes);
-app.use(shopRoutes);
+app.use(adminRoutes);
+// app.use(shopRoutes);
 
 app.use("/", errorsController.get404);
 

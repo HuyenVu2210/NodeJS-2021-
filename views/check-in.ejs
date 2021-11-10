@@ -1,0 +1,22 @@
+<%- include('./includes/head.ejs') %>
+        <link rel="stylesheet" href="/public/css/product.css">
+    </head>
+
+    <body>
+        <%- include('./includes/navigation.ejs') %>
+        <main class="centered">
+            <h1><%= staff.name %></h1>
+            <hr>
+            <div class="image">
+                <img src="<%= staff.image %>" alt="<%= staff.name %>">
+            </div>
+            <form class="product-form" action="/checkin" method="POST">
+                <select name="workplace" id="workplace">
+                    <option value="home">Nhà</option>
+                    <option value="company">Công ty</option>
+                    <option value="customer_company">Khách hàng</option>
+                </select>
+                <button class="btn" type="submit">Check In</button>
+            </form>
+        </main>
+        <%- include('./includes/end.ejs') %>

@@ -1,4 +1,5 @@
-const Product = require("../models/product");
+const Product = require('../models/product');
+const Checkin = require('../models/checkin')
 // const User = require("../models/user");
 
 // const mongodb = require("mongodb");
@@ -37,17 +38,27 @@ const Product = require("../models/product");
 //     });
 // };
 
-// get edit page /admin/edit-staff
+// show staff info /
+exports.getStaffDetail = (req, res, next) => {
+  const Staff = req.staff;
+  res.render("staff-detail", {
+    staff: Staff,
+    docTitle: Staff.name,
+    path: "/",
+  });
+};
+
+// get edit page /edit-staff
 exports.getEditStaff = (req, res, next) => {
   const Staff = req.staff;
-  res.render("admin/edit-staff", {
+  res.render("edit-staff", {
     staff: Staff,
     docTitle: Staff.name,
     path: "/edit-staff",
   });
 };
 
-// post edit
+// post edit /edit-staff
 exports.postEditStaff = (req, res, next) => {
   const image = req.body.image;
   const Staff = req.staff;
@@ -55,10 +66,39 @@ exports.postEditStaff = (req, res, next) => {
   Staff.save()
     .then((results) => {
       console.log("edited staff");
-      res.redirect("/admin");
+      res.redirect("/");
     })
     .catch((err) => {
       console.log("post edit failed: " + err);
+    });
+};
+
+// get check in
+exports.getCheckIn = (req, res, next) => {
+  const Staff = req.staff;
+  res.render('check-in', {
+    staff: Staff,
+    docTitle: Staff.name,
+    path: "/checkin",
+  });
+};
+
+// post checkin 
+exports.postCheckIn = (req, res, next) => {
+  const workplace = req.body.workplace;
+  const checkin_time = new Date();
+  const checkin = new Checkin({
+    start: checkin_time,
+    workplace: workplace,
+    userId: req.staff._id
+  });
+  checkin.save()
+    .then((results) => {
+      console.log("checked in");
+      res.redirect("/");
+    })
+    .catch((err) => {
+      console.log("post checkin failed: " + err);
     });
 };
 
@@ -76,11 +116,4 @@ exports.postEditStaff = (req, res, next) => {
 // };
 
 // get all products ==> /admin/products
-exports.getStaffDetail = (req, res, next) => {
-  const Staff = req.staff;
-  res.render("admin/staff-detail", {
-    staff: Staff,
-    docTitle: Staff.name,
-    path: "/",
-  });
-};
+
