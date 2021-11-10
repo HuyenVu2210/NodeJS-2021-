@@ -10,8 +10,8 @@ const path = require("path");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 
-// user model
-const User = require('./models/user');
+// staff model
+const Staff = require('./models/staff');
 
 // Controllers
 const errorsController = require("./controllers/errors");
@@ -21,10 +21,10 @@ const app = express();
 
 app.set("view engine", "ejs");
 
-// Store user in request
+// Store staff in request
 app.use((req, res, next) => {
-  User.findById('6187ce322f227162af1a53ef').then(user => {
-    req.user = user;
+  Staff.findById('618a7451aec73aa797233ca0').then(staff => {
+    req.staff = staff;
     next();
   })
   .catch(err => {
@@ -41,18 +41,22 @@ app.use(shopRoutes);
 
 app.use("/", errorsController.get404);
 
-mongoose.connect('mongodb+srv://Kb3X1knoBJT4xRUR:Kb3X1knoBJT4xRUR@cluster0.6lc11.mongodb.net/shop?retryWrites=true&w=majority')
+mongoose.connect('mongodb+srv://Kb3X1knoBJT4xRUR:Kb3X1knoBJT4xRUR@cluster0.6lc11.mongodb.net/StaffApp?retryWrites=true&w=majority')
 .then((results) => {
   app.listen(3000);
-  User.findOne()    // findOne with no argument give back the first one
-  .then(user => {
-    if(!user) {
-      const user = new User({
+  Staff.findOne()    // findOne with no argument give back the first one
+  .then(staff => {
+    if(!staff) {
+      const staff = new Staff({
         name: 'Huyen',
-        email: 'Huyen@beo.com',
-        cart: []
+        doB: '2010-10-20',
+        salaryScale: 1,
+        startDate: '2010-10-20',
+        department: 'HR',
+        annualLeave: 12,
+        image: '//' 
       });
-      user.save()
+      staff.save()
     }
   })
 })
