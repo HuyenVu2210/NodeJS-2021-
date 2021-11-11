@@ -44,7 +44,7 @@ exports.getStaffDetail = (req, res, next) => {
   res.render("staff-detail", {
     staff: Staff,
     docTitle: Staff.name,
-    path: "/",
+    path: "/staff",
   });
 };
 
@@ -66,7 +66,7 @@ exports.postEditStaff = (req, res, next) => {
   Staff.save()
     .then((results) => {
       console.log("edited staff");
-      res.redirect("/");
+      res.redirect("/staff");
     })
     .catch((err) => {
       console.log("post edit failed: " + err);
@@ -76,30 +76,57 @@ exports.postEditStaff = (req, res, next) => {
 // get check in
 exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
-  res.render('check-in', {
-    staff: Staff,
-    docTitle: Staff.name,
-    path: "/checkin",
-  });
+  let isCheckedIn = false;
+  Checkin.find({'staff.staffId': req.staff._id, end: null}).then(checkin => {
+    if (checkin.length > 0) {
+      console.log()
+      isCheckedIn = true;
+    }
+    res.render('check-in', {
+      staff: Staff,
+      docTitle: Staff.name,
+      path: "/",
+      isCheckedIn: isCheckedIn
+    });
+  })
+  .catch(err => {
+    console.log(err)
+  })
 };
 
 // post checkin 
 exports.postCheckIn = (req, res, next) => {
-  const workplace = req.body.workplace;
-  const checkin_time = new Date();
-  const checkin = new Checkin({
-    start: checkin_time,
-    workplace: workplace,
-    userId: req.staff._id
-  });
-  checkin.save()
-    .then((results) => {
-      console.log("checked in");
-      res.redirect("/");
-    })
-    .catch((err) => {
-      console.log("post checkin failed: " + err);
-    });
+  Checkin.find({'staff.staffId': req.staff._id, end: null})
+  .then(c => {
+    if (c.length > 0) {
+      let existingCheckin = c[0];
+      const checkout_time = new Date;
+      existingCheckin.end = checkout_time;
+      existingCheckin.save()
+      .then((results) => {
+        console.log("checked in/out");
+        res.redirect("/");
+      })
+      .catch((err) => {
+        console.log("post checkin failed: " + err);
+      });
+    } else {
+      let checkin = new Checkin;
+      const workplace = req.body.workplace;
+      const checkin_time = new Date();
+      checkin.workplace = workplace;
+      checkin.start = checkin_time;
+      checkin.staffId = req.staff._id;
+      checkin.save()
+      .then((results) => {
+        console.log("checked in/out");
+        res.redirect("/");
+      })
+      .catch((err) => {
+        console.log("post checkin failed: " + err);
+      });
+    }
+  })
 };
 
 // delete product

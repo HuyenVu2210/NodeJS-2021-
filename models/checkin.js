@@ -5,11 +5,15 @@ const Schema = mongoose.Schema;
 const checkinSchema = new Schema({
   start: {
     type: Date,
-    required: true
+    // required: true
   },
-  workplace : {
+  workplace: {
     type: String,
-    required: true
+    // required: true
+  },
+  end: {
+    type: Date,
+    // required: true
   },
   staffId: {
     type: Schema.Types.ObjectId,

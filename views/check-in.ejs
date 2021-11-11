@@ -10,13 +10,20 @@
             <div class="image">
                 <img src="<%= staff.image %>" alt="<%= staff.name %>">
             </div>
-            <form class="product-form" action="/checkin" method="POST">
-                <select name="workplace" id="workplace">
-                    <option value="home">Nhà</option>
-                    <option value="company">Công ty</option>
-                    <option value="customer_company">Khách hàng</option>
-                </select>
-                <button class="btn" type="submit">Check In</button>
-            </form>
+            <% if (!isCheckedIn) { %>
+                <form class="product-form" action="/" method="POST">
+                    <select name="workplace" id="workplace">
+                        <option value="home">Nhà</option>
+                        <option value="company">Công ty</option>
+                        <option value="customer_company">Khách hàng</option>
+                    </select>
+                    <button class="btn" type="submit">Check In</button>
+                </form>
+            <% } else { %>
+                <form class="product-form" action="/" method="POST">
+                    <input type="hidden" value="checkout" name="checkout">
+                    <button class="btn" type="submit">Check Out</button>
+                </form>
+            <% } %>
         </main>
         <%- include('./includes/end.ejs') %>
