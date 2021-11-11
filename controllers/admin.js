@@ -77,7 +77,7 @@ exports.postEditStaff = (req, res, next) => {
 exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
   let isCheckedIn = false;
-  Checkin.find({'staff.staffId': req.staff._id, end: null}).then(checkin => {
+  Checkin.find({'staffId': req.staff._id, end: null}).then(checkin => {
     if (checkin.length > 0) {
       console.log()
       isCheckedIn = true;
@@ -96,7 +96,7 @@ exports.getCheckIn = (req, res, next) => {
 
 // post checkin 
 exports.postCheckIn = (req, res, next) => {
-  Checkin.find({'staff.staffId': req.staff._id, end: null})
+  Checkin.find({'staffId': req.staff._id, end: null})
   .then(c => {
     if (c.length > 0) {
       let existingCheckin = c[0];
@@ -131,7 +131,7 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
-  Checkin.find({'staff.staffId': req.staff._id})
+  Checkin.find({'staffId': req.staff._id})
   .then(checkin => {
     res.render('timesheet', {
       staff: req.staff,

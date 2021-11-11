@@ -1,5 +1,7 @@
 <%- include('./includes/head.ejs') %>
         <link rel="stylesheet" href="/public/css/product.css">
+        <link rel="stylesheet" href="/public/css/main.css">
+        <link rel="stylesheet" href="/public/css/forms.css">
     </head>
 
     <body>
@@ -25,5 +27,16 @@
                     <button class="btn" type="submit">Check Out</button>
                 </form>
             <% } %>
+
+            <form class="product-form" action="/dayoff" method="POST">
+                <label for="dayoff">
+                    Chọn ngày nghỉ
+                    <input type="datetime" name="dayoff" id="dayoff">
+                </label>
+                <label for="houroff">
+                    Chọn số giờ nghỉ
+                    <input type="number" name="houroff" id="houroff" max="8">
+                </label>  
+            </form>
         </main>
         <%- include('./includes/end.ejs') %>
