@@ -129,6 +129,22 @@ exports.postCheckIn = (req, res, next) => {
   })
 };
 
+// get timesheet
+exports.getTimesheet = (req, res, next) => {
+  Checkin.find({'staff.staffId': req.staff._id})
+  .then(checkin => {
+    res.render('timesheet', {
+      staff: req.staff,
+      docTitle: 'Timesheet',
+      path: "/",
+      checkin: checkin
+    });
+  })
+  .catch(err => {
+    console.log(err)
+  })
+};
+
 // delete product
 // exports.postDeleteProduct = (req, res, next) => {
 //   const prodId = req.body.productId;

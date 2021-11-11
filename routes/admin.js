@@ -21,7 +21,13 @@ router.post('/edit-staff', adminController.postEditStaff);
 
 // get - post edit checkin info
 router.get('/', adminController.getCheckIn);
+
 router.post('/', adminController.postCheckIn);
+
+// get timesheet
+router.get('/timesheet', adminController.getTimesheet);
+
+
 
 // router.post('/delete-product', adminController.postDeleteProduct);
 

@@ -1,0 +1,25 @@
+<%- include('./includes/head.ejs') %>
+<link rel="stylesheet" href="/css/product.css">
+</head>
+
+<body>
+    <%- include('includes/navigation.ejs') %>
+    <main class="centered">
+        <h1><%= staff.name %></h1>
+        <hr>
+        <div class="image">
+            <img src="<%= staff.image %>" alt="<%= staff.name %>">
+        </div>
+        <ul>
+            <% checkin.forEach(c => { %>
+                <li>
+                    <p><%= c.start %></p> 
+                    <p><%= c.end %></p> 
+                    <p><%= c.workplace %></p> 
+                </li>
+            <% }) %>
+        </ul>
+        <a href="/edit-staff">Edit</a>
+    </main>
+
+<%- include('./includes/end.ejs') %>
