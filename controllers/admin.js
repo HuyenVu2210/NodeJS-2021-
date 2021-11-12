@@ -184,6 +184,15 @@ exports.getTimesheet = (req, res, next) => {
     })
 };
 
+// get covid info form
+exports.getVaccine = (req, res, next) => {
+  const Staff = req.staff;
+  res.render('vaccine', {
+    staff: Staff,
+    docTitle: Staff.name,
+    path: "/vaccine",
+  });
+};
 // delete product
 // exports.postDeleteProduct = (req, res, next) => {
 //   const prodId = req.body.productId;

@@ -1,0 +1,51 @@
+<%- include('./includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/product.css">
+    <link rel="stylesheet" href="/css/forms.css">
+    </head>
+
+    <body>
+        <%- include('includes/navigation.ejs') %>
+            <main>
+                <div class="centered">
+                    <h1>
+                        <%= staff.name %>
+                    </h1>
+                    <hr>
+                    <div class="image">
+                        <img src="<%= staff.image %>" alt="<%= staff.name %>">
+                    </div>
+                </div>
+                <form class="product-form" action="/vaccine" method="POST">
+                    <div class="form-control">
+                        <label for="temp">Nhiet do</label>
+                        <input type="number" name="tem" id="tem">
+                    </div>
+                    <div class="form-control">
+                        <label for="result">Ket qua xet nghiem covid</label>
+                        <select name="result" id="result">
+                            <option value="Duong tinh">Duong tinh</option>
+                            <option value="Am tinh">Am tinh</option>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label for="shot1">Loai vaccine mui 1</label>
+                        <input type="text" name="shot1" id="shot1">
+                    </div>
+                    <div class="form-control">
+                        <label for="date1">Ngay tiem mui 1</label>
+                        <input type="date" name="date1" id="date1">
+                    </div>
+                    <div class="form-control">
+                        <label for="shot2">Loai vaccine mui 2</label>
+                        <input type="text" name="shot2" id="shot2">
+                    </div>
+                    <div class="form-control">
+                        <label for="date2">Ngay tiem mui 2</label>
+                        <input type="date" name="date2" id="date2">
+                    </div>
+                    <button class="btn" type="submit">Update</button>
+                </form>
+            </main>
+
+
+            <%- include('./includes/end.ejs') %>
