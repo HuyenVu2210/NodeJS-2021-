@@ -102,14 +102,24 @@ exports.postCheckIn = (req, res, next) => {
       let existingCheckin = c[0];
       const checkout_time = new Date;
       existingCheckin.end = checkout_time;
-      existingCheckin.save()
-      .then((results) => {
-        console.log("checked in/out");
-        res.redirect("/");
-      })
-      .catch((err) => {
-        console.log("post checkin failed: " + err);
-      });
+      let hour =
+        ((checkout_time.getHours() +
+        checkout_time.getMinutes() / 60) -
+        (existingCheckin.start.getHours() +
+          existingCheckin.start.getMinutes() / 60));
+      
+      existingCheckin.hour = Math.round(hour*100)/100;
+
+      console.log(typeof hour);
+      existingCheckin
+        .save()
+        .then((results) => {
+          console.log("checked in/out");
+          res.redirect("/");
+        })
+        .catch((err) => {
+          console.log("post checkin failed: " + err);
+        });
     } else {
       let checkin = new Checkin;
       const workplace = req.body.workplace;
@@ -131,18 +141,29 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
-  Checkin.find({'staffId': req.staff._id})
-  .then(checkin => {
-    res.render('timesheet', {
-      staff: req.staff,
-      docTitle: 'Timesheet',
-      path: "/",
-      checkin: checkin
-    });
-  })
-  .catch(err => {
-    console.log(err)
-  })
+  Checkin.aggregate(
+    [
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+          totalHours: {
+            $sum: "$hour"
+          }
+        }
+      }
+    ], 
+    function(err, timesheet) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.render('timesheet', {
+          staff: req.staff,
+          docTitle: 'Timesheet',
+          path: "/",
+          timesheet: timesheet
+        });
+      }
+    })
 };
 
 // delete product

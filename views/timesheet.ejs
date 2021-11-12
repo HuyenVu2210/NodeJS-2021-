@@ -11,11 +11,10 @@
             <img src="<%= staff.image %>" alt="<%= staff.name %>">
         </div>
         <ul>
-            <% checkin.forEach(c => { %>
+            <% timesheet.forEach(t => { %>
                 <li>
-                    <p><%= c.start %></p> 
-                    <p><%= c.end %></p> 
-                    <p><%= c.workplace %></p> 
+                    <p><%= t._id %></p> 
+                    <p><%= t.totalHours %></p> 
                 </li>
             <% }) %>
         </ul>
