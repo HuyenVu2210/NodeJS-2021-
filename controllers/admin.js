@@ -123,9 +123,13 @@ exports.postCheckIn = (req, res, next) => {
     } else {
       let checkin = new Checkin;
       const workplace = req.body.workplace;
-      const checkin_time = new Date();
+      const today = new Date();
+      const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+      console.log(date);
+
       checkin.workplace = workplace;
-      checkin.start = checkin_time;
+      checkin.start = today;
+      checkin.date = date;
       checkin.staffId = req.staff._id;
       checkin.save()
       .then((results) => {
@@ -152,16 +156,30 @@ exports.getTimesheet = (req, res, next) => {
         }
       }
     ], 
-    function(err, timesheet) {
+    function(err, results) {
       if (err) {
         console.log(err);
       } else {
-        res.render('timesheet', {
-          staff: req.staff,
-          docTitle: 'Timesheet',
-          path: "/",
-          timesheet: timesheet
+        console.log(results);
+        let timesheet;
+        timesheet = results.map(i => {
+          const date = i._id + 'T00:00:00.000+00:00';
+          const totalHours = i.totalHours
+          return Checkin.find({'date': date})     // have to return in able to handle as a promise
+          .then(checkin => {
+            return { _id: date, checkin: checkin, totalHours: totalHours }
+          });
         });
+
+        Promise.all(timesheet).then(function(results) {
+          console.log(JSON.stringify(results));
+          res.render('timesheet', {
+            staff: req.staff,
+            docTitle: 'Timesheet',
+            path: "/",
+            timesheet: results
+          });
+        })
       }
     })
 };

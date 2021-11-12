@@ -15,6 +15,9 @@ const checkinSchema = new Schema({
     type: Date,
     // required: true
   },
+  date: {
+    type: Date
+  },
   hour: {
     type: Number,
   },

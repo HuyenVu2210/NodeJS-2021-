@@ -15,6 +15,16 @@
                 <li>
                     <p><%= t._id %></p> 
                     <p><%= t.totalHours %></p> 
+                    <br>
+                    <ul>
+                        <% t.checkin.forEach(checkin => { %> 
+                            <li>
+                                <p><%= checkin.start %></p>
+                                <p><%= checkin.end %></p>
+                                <p><%= checkin.workplace %></p>
+                            </li>
+                        <% }) %>
+                    </ul>
                 </li>
             <% }) %>
         </ul>
