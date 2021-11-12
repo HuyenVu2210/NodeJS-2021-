@@ -187,6 +187,8 @@ exports.getTimesheet = (req, res, next) => {
 // get covid info form
 exports.getVaccine = (req, res, next) => {
   const Staff = req.staff;
+  console.log(Staff.covid.vaccine[0]['date']);
+  console.log(Staff.covid.vaccine[0]['date'].toISOString().slice(0,10));
   res.render('vaccine', {
     staff: Staff,
     docTitle: Staff.name,
