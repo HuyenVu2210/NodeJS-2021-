@@ -193,6 +193,33 @@ exports.getVaccine = (req, res, next) => {
     path: "/vaccine",
   });
 };
+
+// post covid info 
+exports.postVaccine = (req, res, next) => {
+    const tem = req.body.tem;
+    const shot1 = req.body.shot1;
+    const date1 = req.body.date1;
+    const shot2 = req.body.shot2;
+    const date2 = req.body.date2;
+    const result = req.body.result;
+    const v1 = {shot: shot1, date: date1};
+    const v2 = {shot: shot2, date: date2};
+
+    console.log(v2);
+
+    req.staff.covid.tem = tem;
+    req.staff.covid.result = result;
+    req.staff.covid.vaccine[0] = v1;
+    req.staff.covid.vaccine[1] = v2;
+
+    req.staff.save()
+    .then(results => {
+      res.redirect('/')
+    })
+};
+
+
+
 // delete product
 // exports.postDeleteProduct = (req, res, next) => {
 //   const prodId = req.body.productId;

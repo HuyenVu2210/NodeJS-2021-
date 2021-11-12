@@ -30,6 +30,24 @@ const staffSchema = new Schema({
   image: {
     type: String,
     required: true
+  },
+  covid: {
+    vaccine: [
+      {
+        shot: {
+          type: String
+        },
+        date: {
+          type: Date
+        }
+      }
+    ],
+    tem: {
+        type: Number
+      },
+      result: {
+        type: String
+      }
   }
 });
 

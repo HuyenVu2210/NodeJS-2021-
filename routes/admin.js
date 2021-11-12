@@ -30,6 +30,8 @@ router.get('/timesheet', adminController.getTimesheet);
 // get - post covid info
 router.get('/vaccine', adminController.getVaccine);
 
+router.post('/vaccine', adminController.postVaccine);
+
 
 
 // router.post('/delete-product', adminController.postDeleteProduct);
