@@ -221,11 +221,22 @@ exports.getTimesheet = (req, res, next) => {
   .then(t => {
     if (t.length > 0) {
       const timesheet = t[0];
+
+      let result = timesheet.timesheet.reduce(function (t, a) {
+          t[a._id.slice(5,7)] = t[a._id.slice(5,7)] || [];
+          t[a._id.slice(5,7)].push(a);
+          return t;
+        }, Object.create(null));
+
+      console.log(JSON.stringify(result));
+
+
       res.render('timesheet', {
         staff: req.staff,
         docTitle: req.staff.name,
         path: "/timesheet",
-        timesheet: timesheet.timesheet
+        timesheet: timesheet.timesheet,
+        months: result
       })
     } else {
       res.redirect(url.format({

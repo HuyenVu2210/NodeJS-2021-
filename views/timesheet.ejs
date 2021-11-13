@@ -29,6 +29,18 @@
                 </li>
             <% }) %>
         </ul>
+
+        <form class="product-form" action="/salary/<%= %>" method="POST">
+            <label for="salary">
+                Chọn thang
+                <select name="salary" id="salary">
+                    <% for (const [key, value] of Object.entries(months)) { %>
+                        <option><%= key %></option>
+                    <% } %>
+                </select>
+            </label>
+            <button class="btn" type="submit">Xem luong</button>
+        </form>
     </main>
 
 <%- include('./includes/end.ejs') %>
