@@ -84,7 +84,6 @@ exports.getCheckIn = (req, res, next) => {
   console.log(cannot)
   Checkin.find({'staffId': req.staff._id, end: null}).then(checkin => {
     if (checkin.length > 0) {
-      console.log()
       isCheckedIn = true;
     }
     res.render('check-in', {
@@ -161,7 +160,8 @@ exports.getTimesheet = (req, res, next) => {
             $sum: "$hour"
           }
         }
-      }
+      },
+      { $sort: { _id: -1 } }
     ], 
     function(err, results) {
       if (err) {
