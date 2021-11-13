@@ -80,6 +80,7 @@ exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
   let isCheckedIn = false;
   let cannot = req.query.cannot;
+
   console.log(cannot)
   Checkin.find({'staffId': req.staff._id, end: null}).then(checkin => {
     if (checkin.length > 0) {
@@ -241,7 +242,7 @@ exports.postDayoff = (req, res, next) => {
       existingDayoff.totalHoursOff = totalHoursOff;
 
       const cannot = totalHoursOff !== existingHoursOff + houroff;
-      console.log(cannot);
+      
         existingDayoff.save()
         .then(results => {
           res.redirect(url.format({

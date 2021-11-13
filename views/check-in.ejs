@@ -40,6 +40,10 @@
                 <button class="btn" type="submit">Xin nghi</button>
             </form>
 
-            <% if (cannot) { %> <p> Khong dang ky duoc vi so gio nghi da qua 8 gio </p> <% } else { %> <p></p> <% } %>
+            <% if (cannot === 'true') { %> 
+                <p> Khong dang ky duoc vi so gio nghi da qua 8 gio </p> 
+            <% } else { %> 
+                <p></p> 
+            <% } %>
         </main>
         <%- include('./includes/end.ejs') %>
