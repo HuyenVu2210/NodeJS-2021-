@@ -228,7 +228,7 @@ exports.getTimesheet = (req, res, next) => {
           return t;
         }, Object.create(null));
 
-      console.log(JSON.stringify(result));
+      // console.log(JSON.stringify(result));
 
 
       res.render('timesheet', {
@@ -319,6 +319,51 @@ exports.postDayoff = (req, res, next) => {
       .then(results => {
         res.redirect('/');
       })
+    }
+  })
+};
+
+
+// get salary
+exports.getSalary = (req, res, next) => {
+  const month = req.params.month;
+  console.log(month);
+  Timesheet.find({'staffId': req.staff._id})
+  .then(t => {
+    if (t.length > 0) {
+      const timesheet = t[0];
+
+      let result = timesheet.timesheet.reduce(function (t, a) {
+        t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+        t[a._id.slice(5, 7)].push(a);
+        return t;
+      }, Object.create(null));
+
+      for (const [key, value] of Object.entries(result)) {
+        if (key === month) {
+          let overtime = 0;
+          // console.log(value)
+          value.forEach(v => {
+            overtime = overtime + v.overTime;
+          })
+          console.log(overtime);
+          
+        }
+      }
+      // res.render('timesheet', {
+      //   staff: req.staff,
+      //   docTitle: req.staff.name,
+      //   path: "/timesheet",
+      //   timesheet: timesheet.timesheet,
+      //   months: result
+      // })
+    } else {
+      // res.redirect(url.format({
+      //   pathname:"/",
+      //   query: {
+      //      noTimesheet: true
+      //    }
+      // }))
     }
   })
 };

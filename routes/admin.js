@@ -36,6 +36,11 @@ router.post('/vaccine', adminController.postVaccine);
 router.post('/dayoff', adminController.postDayoff);
 
 
+// get salary
+router.get('/salary/:month', adminController.getSalary);
+
+
+
 // router.post('/delete-product', adminController.postDeleteProduct);
 
 module.exports = router;
