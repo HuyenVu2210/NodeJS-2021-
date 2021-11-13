@@ -45,5 +45,11 @@
             <% } else { %> 
                 <p></p> 
             <% } %>
+
+            <% if (noTimesheet === 'true') { %> 
+                <p> Khong co thong tin timesheet </p> 
+            <% } else { %> 
+                <p></p> 
+            <% } %>
         </main>
         <%- include('./includes/end.ejs') %>

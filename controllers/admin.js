@@ -1,6 +1,7 @@
 // const Product = require('../models/product');
 const Checkin = require('../models/checkin');
 const Dayoff = require('../models/dayoff');
+const Timesheet = require('../models/timesheet');
 const url = require('url'); 
 // const User = require("../models/user");
 
@@ -80,6 +81,7 @@ exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
   let isCheckedIn = false;
   let cannot = req.query.cannot;
+  let noTimesheet = req.query.noTimesheet
 
   console.log(cannot)
   Checkin.find({'staffId': req.staff._id, end: null}).then(checkin => {
@@ -91,7 +93,8 @@ exports.getCheckIn = (req, res, next) => {
       docTitle: Staff.name,
       path: "/",
       isCheckedIn: isCheckedIn,
-      cannot: cannot
+      cannot: cannot,
+      noTimesheet: noTimesheet
     });
   })
   .catch(err => {
@@ -120,7 +123,71 @@ exports.postCheckIn = (req, res, next) => {
         .save()
         .then((results) => {
           console.log("checked in/out");
-          res.redirect("/");
+          Checkin.aggregate(
+            [
+              { $match: { 'staffId': req.staff._id } },
+              {
+                $group: {
+                  _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                  totalHours: {
+                    $sum: "$hour"
+                  }
+                }
+              },
+              { $sort: { _id: -1 } }
+            ], 
+            function(err, results) {
+              if (err) {
+                console.log(err);
+              } else {
+                // console.log(results);
+                let forRenderTimesheet;
+                time = results.map(i => {
+                  const date = i._id + 'T00:00:00.000+00:00';
+                  const totalHours = i.totalHours;
+                  const overTime = totalHours > 8 ? totalHours - 8 : 0;
+                  return Checkin.find({'date': date})     // have to return in able to handle as a promise
+                  .then(checkin => {
+                    return { _id: date, checkin: checkin, totalHours: totalHours, overTime: overTime }
+                  });
+                });
+        
+                Promise.all(time).then(function(results) {
+                  forRenderTimesheet = results;
+                  console.log(JSON.stringify(forRenderTimesheet));
+        
+                  Timesheet.find({'staffId': req.staff._id})
+                  .then(t => {
+        
+                    // create temporary timesheet to get info
+                    const timesheet = new Timesheet({
+                      staffId: req.staff._id,
+                      timesheet: []
+                    });
+                    forRenderTimesheet.forEach(i => {
+                      timesheet.timesheet.push({
+                          _id: i._id,
+                          checkin: [...i.checkin],
+                          totalHours: i.totalHours,
+                          overTime: i.overTime,
+                        });
+                    }); 
+        
+                    if (t.length > 0) {
+                      let existingTimesheet = t[0];
+                      existingTimesheet.timesheet = timesheet.timesheet;
+                      existingTimesheet.save().then((results) => {
+                        res.redirect("/");
+                      });
+                    } else {
+                      timesheet.save().then((results) => {
+                        res.redirect("/");
+                      });
+                    }
+                  })       
+                })
+              }
+            })
         })
         .catch((err) => {
           console.log("post checkin failed: " + err);
@@ -150,46 +217,25 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
-  Checkin.aggregate(
-    [
-      { $match: { 'staffId': req.staff._id } },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-          totalHours: {
-            $sum: "$hour"
-          }
-        }
-      },
-      { $sort: { _id: -1 } }
-    ], 
-    function(err, results) {
-      if (err) {
-        console.log(err);
-      } else {
-        // console.log(results);
-        let timesheet;
-        timesheet = results.map(i => {
-          const date = i._id + 'T00:00:00.000+00:00';
-          const totalHours = i.totalHours;
-          const overTime = totalHours > 8 ? totalHours - 8 : 0;
-          return Checkin.find({'date': date})     // have to return in able to handle as a promise
-          .then(checkin => {
-            return { _id: date, checkin: checkin, totalHours: totalHours, overTime: overTime }
-          });
-        });
-
-        Promise.all(timesheet).then(function(results) {
-          console.log(JSON.stringify(results));
-          res.render('timesheet', {
-            staff: req.staff,
-            docTitle: 'Timesheet',
-            path: "/timesheet",
-            timesheet: results
-          });
-        })
-      }
-    })
+  Timesheet.find({'staffId': req.staff._id})
+  .then(t => {
+    if (t.length > 0) {
+      const timesheet = t[0];
+      res.render('timesheet', {
+        staff: req.staff,
+        docTitle: req.staff.name,
+        path: "/timesheet",
+        timesheet: timesheet.timesheet
+      })
+    } else {
+      res.redirect(url.format({
+        pathname:"/",
+        query: {
+           noTimesheet: true
+         }
+      }))
+    }
+  })
 };
 
 // get covid info form

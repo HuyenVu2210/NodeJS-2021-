@@ -5,24 +5,47 @@ const Schema = mongoose.Schema;
 const timesheetSchema = new Schema({
   staffId: {
     type: Schema.Types.ObjectId,
-    refer: 'Staff'
+    refer: "Staff",
   },
-  checkin: {
-    items: [
-      {
-        checkinId: {
-          type: Schema.Types.ObjectId,
-          required: true,
-          ref: 'Checkin'
-        },
-        time: {
-          type: Number,
-          required: true,
-        },
+  timesheet: [
+    {
+      _id: {
+        type: String
       },
-    ],
-  },
+      checkin: [
+        {
+          _id: {
+            type: Schema.Types.ObjectId,
+            refer: 'Checkin'
+          },
+          start: {
+            type: Date,
+            // required: true
+          },
+          workplace: {
+            type: String,
+            // required: true
+          },
+          end: {
+            type: Date,
+            // required: true
+          },
+          date: {
+            type: Date
+          },
+          hour: {
+            type: Number,
+          }
+        },
+      ],
+      totalHours: {
+        type: Number
+      },
+      overTime: {
+        type: Number
+      },
+    }
+  ],
 });
 
-module.exports = mongoose.model('Timesheet', timesheetSchema)
-
+module.exports = mongoose.model("Timesheet", timesheetSchema);
