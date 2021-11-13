@@ -195,8 +195,6 @@ exports.getTimesheet = (req, res, next) => {
 // get covid info form
 exports.getVaccine = (req, res, next) => {
   const Staff = req.staff;
-  console.log(Staff.covid.vaccine[0]['date']);
-  console.log(Staff.covid.vaccine[0]['date'].toISOString().slice(0,10));
   res.render('vaccine', {
     staff: Staff,
     docTitle: Staff.name,
@@ -208,14 +206,16 @@ exports.getVaccine = (req, res, next) => {
 exports.postVaccine = (req, res, next) => {
     const tem = req.body.tem;
     const shot1 = req.body.shot1;
-    const date1 = req.body.date1;
+    const newDate = new Date();
+    const newDate1 = newDate.toISOString().slice(0,10) + 'T00:00:00.000+00:00';
+
+    const date1 = req.body.date1 === '' ? newDate1 : req.body.date1;
     const shot2 = req.body.shot2;
-    const date2 = req.body.date2;
+    const date2 = req.body.date2 === '' ? newDate1 : req.body.date2;
     const result = req.body.result;
+
     const v1 = {shot: shot1, date: date1};
     const v2 = {shot: shot2, date: date2};
-
-    console.log(v2);
 
     req.staff.covid.tem = tem;
     req.staff.covid.result = result;
