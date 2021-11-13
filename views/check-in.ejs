@@ -51,5 +51,11 @@
             <% } else { %> 
                 <p></p> 
             <% } %>
+
+            <% if (overLeave === 'true') { %> 
+                <p> Khong dang ky duoc vi qua so ngay nghi quy dinh </p> 
+            <% } else { %> 
+                <p></p> 
+            <% } %>
         </main>
         <%- include('./includes/end.ejs') %>
