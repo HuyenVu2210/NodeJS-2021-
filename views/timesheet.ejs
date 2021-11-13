@@ -1,46 +1,51 @@
 <%- include('./includes/head.ejs') %>
-<link rel="stylesheet" href="/css/product.css">
-</head>
+    <link rel="stylesheet" href="/css/product.css">
+    </head>
 
-<body>
-    <%- include('includes/navigation.ejs') %>
-    <main class="centered">
-        <h1><%= staff.name %></h1>
-        <hr>
-        <div class="image">
-            <img src="<%= staff.image %>" alt="<%= staff.name %>">
-        </div>
-        <ul>
-            <% timesheet.forEach(t => { %>
-                <li>
-                    <p>Date: <%= t._id %></p> 
-                    <p>Total hours: <%= t.totalHours %></p> 
-                    <p>Overtime: <%= t.overTime %></p>
-                    <br>
-                    <ul>
-                        <% t.checkin.forEach(checkin => { %> 
-                            <li>
-                                <p><%= checkin.start %></p>
-                                <p><%= checkin.end %></p>
-                                <p><%= checkin.workplace %></p>
-                            </li>
+    <body>
+        <%- include('includes/navigation.ejs') %>
+            <main class="centered">
+                <h1>
+                    <%= staff.name %>
+                </h1>
+                <hr>
+                <div class="image">
+                    <img src="<%= staff.image %>" alt="<%= staff.name %>">
+                </div>
+                <ul>
+                    <% timesheet.forEach(t=> { %>
+                        <li>
+                            <p>Date: <%= t._id %>
+                            </p>
+                            <p>Total hours: <%= t.totalHours %>
+                            </p>
+                            <p>Overtime: <%= t.overTime %>
+                            </p>
+                            <br>
+                            <ul>
+                                <% t.checkin.forEach(checkin=> { %>
+                                    <li>
+                                        <p>
+                                            <%= checkin.start %>
+                                        </p>
+                                        <p>
+                                            <%= checkin.end %>
+                                        </p>
+                                        <p>
+                                            <%= checkin.workplace %>
+                                        </p>
+                                    </li>
+                                    <% }) %>
+                            </ul>
+                        </li>
                         <% }) %>
-                    </ul>
-                </li>
-            <% }) %>
-        </ul>
+                </ul>
 
-        <form class="product-form" action="/salary/<%= %>" method="POST">
-            <label for="salary">
-                Chọn thang
-                <select name="salary" id="salary">
-                    <% for (const [key, value] of Object.entries(months)) { %>
-                        <option><%= key %></option>
-                    <% } %>
-                </select>
-            </label>
-            <button class="btn" type="submit">Xem luong</button>
-        </form>
-    </main>
+                <span>Xem luong thang</span>
+                <% for (const [key, value] of Object.entries(months)) { %>
+                    <a href="/salary/<%= key %>"><%= key %></a>
+                <% } %>
 
-<%- include('./includes/end.ejs') %>
+            </main>
+
+            <%- include('./includes/end.ejs') %>
