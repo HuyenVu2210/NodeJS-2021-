@@ -1,5 +1,6 @@
 const Product = require('../models/product');
-const Checkin = require('../models/checkin')
+const Checkin = require('../models/checkin');
+const Dayoff = require('../models/dayoff');
 // const User = require("../models/user");
 
 // const mongodb = require("mongodb");
@@ -147,6 +148,7 @@ exports.postCheckIn = (req, res, next) => {
 exports.getTimesheet = (req, res, next) => {
   Checkin.aggregate(
     [
+      { $match: { 'staffId': req.staff._id } },
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
@@ -160,14 +162,15 @@ exports.getTimesheet = (req, res, next) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(results);
+        // console.log(results);
         let timesheet;
         timesheet = results.map(i => {
           const date = i._id + 'T00:00:00.000+00:00';
-          const totalHours = i.totalHours
+          const totalHours = i.totalHours;
+          const overTime = totalHours > 8 ? totalHours - 8 : 0;
           return Checkin.find({'date': date})     // have to return in able to handle as a promise
           .then(checkin => {
-            return { _id: date, checkin: checkin, totalHours: totalHours }
+            return { _id: date, checkin: checkin, totalHours: totalHours, overTime: overTime }
           });
         });
 
@@ -218,6 +221,35 @@ exports.postVaccine = (req, res, next) => {
     .then(results => {
       res.redirect('/')
     })
+};
+
+// post dayoff info 
+exports.postDayoff = (req, res, next) => {
+  const reqdayoff = req.body.dayoff + 'T00:00:00.000+00:00';
+  const houroff = Math.round(req.body.houroff*100)/100;
+
+  Dayoff.find({'staffId': req.staff._id, 'date': reqdayoff})
+  .then(dayoff => {
+    if (dayoff.length > 0) {
+      let existingDayoff = dayoff[0];
+      const totalHoursOff = existingDayoff.totalHoursOff + houroff;
+      existingDayoff.totalHoursOff = totalHoursOff;
+        const x = existingDayoff.save()
+        .then(results => {
+          res.redirect('/');
+        })
+    } else {
+      const newDayoff = new Dayoff({
+        staffId: req.staff._id,
+        date: reqdayoff,
+        totalHoursOff: houroff
+      });
+      newDayoff.save()
+      .then(results => {
+        res.redirect('/');
+      })
+    }
+  })
 };
 
 

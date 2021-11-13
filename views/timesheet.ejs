@@ -13,8 +13,9 @@
         <ul>
             <% timesheet.forEach(t => { %>
                 <li>
-                    <p><%= t._id %></p> 
-                    <p><%= t.totalHours %></p> 
+                    <p>Date: <%= t._id %></p> 
+                    <p>Total hours: <%= t.totalHours %></p> 
+                    <p>Overtime: <%= t.overTime %></p>
                     <br>
                     <ul>
                         <% t.checkin.forEach(checkin => { %> 

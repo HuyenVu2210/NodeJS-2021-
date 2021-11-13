@@ -32,6 +32,8 @@ router.get('/vaccine', adminController.getVaccine);
 
 router.post('/vaccine', adminController.postVaccine);
 
+// post day off
+router.post('/dayoff', adminController.postDayoff);
 
 
 // router.post('/delete-product', adminController.postDeleteProduct);

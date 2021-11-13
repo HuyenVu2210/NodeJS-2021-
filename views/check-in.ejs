@@ -31,12 +31,13 @@
             <form class="product-form" action="/dayoff" method="POST">
                 <label for="dayoff">
                     Chọn ngày nghỉ
-                    <input type="datetime" name="dayoff" id="dayoff">
+                    <input type="date" name="dayoff" id="dayoff">
                 </label>
                 <label for="houroff">
                     Chọn số giờ nghỉ
-                    <input type="number" name="houroff" id="houroff" max="8">
+                    <input type="string" name="houroff" id="houroff" max="8">
                 </label>  
+                <button class="btn" type="submit">Xin nghi</button>
             </form>
         </main>
         <%- include('./includes/end.ejs') %>
