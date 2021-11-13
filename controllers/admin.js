@@ -1,6 +1,7 @@
-const Product = require('../models/product');
+// const Product = require('../models/product');
 const Checkin = require('../models/checkin');
 const Dayoff = require('../models/dayoff');
+const url = require('url'); 
 // const User = require("../models/user");
 
 // const mongodb = require("mongodb");
@@ -78,6 +79,8 @@ exports.postEditStaff = (req, res, next) => {
 exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
   let isCheckedIn = false;
+  let cannot = req.query.cannot;
+  console.log(cannot)
   Checkin.find({'staffId': req.staff._id, end: null}).then(checkin => {
     if (checkin.length > 0) {
       console.log()
@@ -87,7 +90,8 @@ exports.getCheckIn = (req, res, next) => {
       staff: Staff,
       docTitle: Staff.name,
       path: "/",
-      isCheckedIn: isCheckedIn
+      isCheckedIn: isCheckedIn,
+      cannot: cannot
     });
   })
   .catch(err => {
@@ -179,7 +183,7 @@ exports.getTimesheet = (req, res, next) => {
           res.render('timesheet', {
             staff: req.staff,
             docTitle: 'Timesheet',
-            path: "/",
+            path: "/timesheet",
             timesheet: results
           });
         })
@@ -232,11 +236,20 @@ exports.postDayoff = (req, res, next) => {
   .then(dayoff => {
     if (dayoff.length > 0) {
       let existingDayoff = dayoff[0];
-      const totalHoursOff = existingDayoff.totalHoursOff + houroff;
+      let existingHoursOff = existingDayoff.totalHoursOff;
+      const totalHoursOff = existingHoursOff + houroff < 8 ? existingHoursOff + houroff: existingHoursOff;
       existingDayoff.totalHoursOff = totalHoursOff;
-        const x = existingDayoff.save()
+
+      const cannot = totalHoursOff !== existingHoursOff + houroff;
+      console.log(cannot);
+        existingDayoff.save()
         .then(results => {
-          res.redirect('/');
+          res.redirect(url.format({
+            pathname:"/",
+            query: {
+               cannot: cannot
+             }
+          }));
         })
     } else {
       const newDayoff = new Dayoff({
