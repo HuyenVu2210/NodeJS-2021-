@@ -1,50 +1,65 @@
 <%- include('./includes/head.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
+    <link rel="stylesheet" href="/css/forms.css">
     </head>
 
     <body>
         <%- include('includes/navigation.ejs') %>
-            <main class="centered">
-                <h1>
-                    <%= staff.name %>
-                </h1>
-                <hr>
-                <div class="image">
-                    <img src="<%= staff.image %>" alt="<%= staff.name %>">
+            <main>
+                <div class="centered">
+                    <h1>
+                        Thông tin giờ làm
+                    </h1>
+                    <hr>
+                    <div class="image">
+                        <img src="<%= staff.image %>" alt="<%= staff.name %>">
+                    </div>
                 </div>
-                <ul>
-                    <% timesheet.forEach(t=> { %>
-                        <li>
-                            <p>Date: <%= t._id %>
-                            </p>
-                            <p>Total hours: <%= t.totalHours %>
-                            </p>
-                            <p>Overtime: <%= t.overTime %>
-                            </p>
-                            <br>
-                            <ul>
-                                <% t.checkin.forEach(checkin=> { %>
-                                    <li>
-                                        <p>
-                                            <%= checkin.start %>
-                                        </p>
-                                        <p>
-                                            <%= checkin.end %>
-                                        </p>
-                                        <p>
-                                            <%= checkin.workplace %>
-                                        </p>
-                                    </li>
-                                    <% }) %>
-                            </ul>
-                        </li>
-                        <% }) %>
-                </ul>
+                <div class="container">
+                    <div>
+                        <ul>
+                            <% timesheet.forEach(t=> { %>
+                                <li>
+                                    <p>Ngày làm việc: <%= t._id.slice(0,10) %>
+                                    </p>
+                                    <p>Tổng số giờ làm: <%= t.totalHours %>
+                                    </p>
+                                    <p>Overtime: <%= t.overTime %>
+                                    </p>
+                                    <br>
+                                    <p>Các phiên điểm danh: </p>
+                                    <ul>
+                                        <% t.checkin.forEach(checkin=> { %>
+                                            <li>
+                                                <p>Bắt đầu: 
+                                                    <%= checkin.start.getHours() %>:<%= checkin.start.getMinutes() %>
+                                                </p>
+                                                <p>Kết thúc: 
+                                                    <%= checkin.end.getHours() %>:<%= checkin.end.getMinutes() %>
+                                                </p>
+                                                <p>Nơi làm việc: 
+                                                    <%= checkin.workplace === 'home' ? 'Nhà' : checkin.workplace === 'customer_company' ? 'Khách hàng' : 'Công ty' %>
+                                                </p>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </li>
+                                <% }) %>
+                        </ul>
+                    </div>
+                </div>
 
-                <span>Xem luong thang</span>
-                <% for (const [key, value] of Object.entries(months)) { %>
-                    <a href="/salary/<%= key %>"><%= key %></a>
-                <% } %>
+                <div class="space-div"></div>
+
+                <div class="centered">
+                    <span>Xem lương tháng</span>
+                    <% for (const [key, value] of Object.entries(months)) { %>
+                        <a href="/salary/<%= key %>">
+                            <%= key %>
+                        </a>
+                        <span>,</span>
+                        <% } %>
+                </div>
 
             </main>
 
