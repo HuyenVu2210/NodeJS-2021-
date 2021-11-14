@@ -4,17 +4,25 @@
 
     <body>
         <%- include('./includes/navigation.ejs') %>
-        <main class="centered">
-            <h1><%= staff.name %></h1>
-            <hr>
-            <div class="image">
-                <img src="<%= staff.image %>" alt="<%= staff.name %>">
+        <main>
+            <div class="centered">
+                <h1><%= staff.name %></h1>
+                <hr>
+                <div>
+                    <img src="<%= staff.image %>" alt="<%= staff.name %>" class="image staff-image">
+                </div>
             </div>
-            <p><%= staff.doB %></p>
-            <p><%= staff.salaryScale %></p>
-            <p><%= staff.startDate %></p>
-            <p><%= staff.department %></p>
-            <p><%= staff.annualLeave %></p>
-            <a href="/edit-staff">Edit</a>
+            <div class="container">
+                <div>
+                    <p>Ngày sinh: <%= staff.doB.toISOString().slice(0,10) %></p>
+                    <p>Hệ số lương: <%= staff.salaryScale %></p>
+                    <p>Ngày bắt đầu làm việc: <%= staff.startDate.toISOString().slice(0,10) %></p>
+                    <p>Bộ phận: <%= staff.department %></p>
+                    <p>Số ngày nghỉ còn lại: <%= Math.round((staff.annualLeave/8) * 100) / 100 %> ngày</p>
+                    <div class="centered">
+                        <a href="/edit-staff">Edit</a>
+                    </div>
+                </div>
+            </div>
         </main>
         <%- include('./includes/end.ejs') %>

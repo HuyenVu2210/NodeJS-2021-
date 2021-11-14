@@ -13,6 +13,8 @@ body {
 main {
   padding: 1rem;
   margin: auto;
+  min-height: 100vh;
+  min-width: 100vw;
 }
 
 form {
@@ -21,6 +23,11 @@ form {
 
 .centered {
   text-align: center;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
 }
 
 .main-header {
@@ -197,6 +204,28 @@ form {
   color: white;
 }
 
+.footer-span {
+  color: #ffffff;
+}
+
+.main-footer {
+  width: 100%;
+  height: 3.5rem;
+  background-color: #00695c;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.main-footer__item {
+  color: white;
+  font-weight: 400;
+}
+
+.staff-image {
+  width: 50vw;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
@@ -205,4 +234,9 @@ form {
   #side-menu-toggle {
     display: none;
   }
+
+  .staff-image {
+    width: 30vw;
+  }
 }
+

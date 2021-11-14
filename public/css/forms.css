@@ -11,7 +11,9 @@
 }
 
 .form-control input,
-.form-control textarea {
+.form-control textarea,
+.form-control select
+ {
   border: 1px solid #a1a1a1;
   font: inherit;
   border-radius: 2px;
