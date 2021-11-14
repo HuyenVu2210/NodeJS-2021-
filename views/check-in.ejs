@@ -29,6 +29,7 @@
             <% } %>
 
             <form class="product-form" action="/dayoff" method="POST">
+                <p>So ngay nghi con lai: <%= Math.round((staff.annualLeave/8) * 100) / 100 %></p>
                 <label for="dayoff">
                     Chọn ngày nghỉ
                     <input type="date" name="dayoff" id="dayoff">
