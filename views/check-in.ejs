@@ -1,62 +1,83 @@
 <%- include('./includes/head.ejs') %>
-        <link rel="stylesheet" href="/public/css/product.css">
-        <link rel="stylesheet" href="/public/css/main.css">
-        <link rel="stylesheet" href="/public/css/forms.css">
+    <link rel="stylesheet" href="/css/product.css">
+    <link rel="stylesheet" href="/css/forms.css">
     </head>
 
     <body>
         <%- include('./includes/navigation.ejs') %>
-        <main class="centered">
-            <h1><%= staff.name %></h1>
-            <hr>
-            <div class="image">
-                <img src="<%= staff.image %>" alt="<%= staff.name %>">
-            </div>
-            <% if (!isCheckedIn) { %>
-                <form class="product-form" action="/" method="POST">
-                    <select name="workplace" id="workplace">
-                        <option value="home">Nhà</option>
-                        <option value="company">Công ty</option>
-                        <option value="customer_company">Khách hàng</option>
-                    </select>
-                    <button class="btn" type="submit">Check In</button>
-                </form>
-            <% } else { %>
-                <form class="product-form" action="/" method="POST">
-                    <input type="hidden" value="checkout" name="checkout">
-                    <button class="btn" type="submit">Check Out</button>
-                </form>
-            <% } %>
+            <main>
+                <div class="centered">
+                    <h1>
+                        Đăng ký điểm danh
+                    </h1>
+                    <hr>
+                    <div class="image">
+                        <img src="<%= staff.image %>" alt="<%= staff.name %>">
+                    </div>
+                </div>
 
-            <form class="product-form" action="/dayoff" method="POST">
-                <p>So ngay nghi con lai: <%= Math.round((staff.annualLeave/8) * 100) / 100 %></p>
-                <label for="dayoff">
-                    Chọn ngày nghỉ
-                    <input type="date" name="dayoff" id="dayoff">
-                </label>
-                <label for="houroff">
-                    Chọn số giờ nghỉ
-                    <input type="string" name="houroff" id="houroff" max="8">
-                </label>  
-                <button class="btn" type="submit">Xin nghi</button>
-            </form>
+                <% if (noTimesheet==='true' ) { %>
+                    <p class="centered"><i class="warning"> Không có thông tin timesheet </i></p>
+                    <% } else { %>
+                        <p></p>
+                        <% } %>
 
-            <% if (cannot === 'true') { %> 
-                <p> Khong dang ky duoc vi so gio nghi da qua 8 gio </p> 
-            <% } else { %> 
-                <p></p> 
-            <% } %>
+                            <% if (!isCheckedIn) { %>
+                                <form class="product-form" action="/" method="POST">
+                                    <div class="form-control">
+                                        <label for="workplace"><b>Chọn địa điểm làm việc: </b></label>
+                                        <select name="workplace" id="workplace">
+                                            <option value="home">Nhà</option>
+                                            <option value="company">Công ty</option>
+                                            <option value="customer_company">Khách hàng</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <button class="btn" type="submit">Điểm danh</button>
+                                    </div>
+                                </form>
+                                <% } else { %>
+                                    <form class="product-form" action="/" method="POST">
+                                        <input type="hidden" value="checkout" name="checkout">
+                                        <button class="btn" type="submit">Kết thúc</button>
+                                    </form>
+                                    <% } %>
 
-            <% if (noTimesheet === 'true') { %> 
-                <p> Khong co thong tin timesheet </p> 
-            <% } else { %> 
-                <p></p> 
-            <% } %>
+                                        <div class="space-div"></div>
 
-            <% if (overLeave === 'true') { %> 
-                <p> Khong dang ky duoc vi qua so ngay nghi quy dinh </p> 
-            <% } else { %> 
-                <p></p> 
-            <% } %>
-        </main>
-        <%- include('./includes/end.ejs') %>
+                                        <form class="product-form" action="/dayoff" method="POST">
+                                            <b class="form-title">Đăng ký ngày nghỉ</b>
+                                            <p>
+                                                <i>Số ngày nghỉ còn lại: <%= Math.round((staff.annualLeave/8) * 100) /
+                                                        100 %>
+                                                </i>
+                                            </p>
+                                            <div class="form-control">
+                                                <label for="dayoff">
+                                                    Chọn ngày nghỉ: </label>
+                                                <input type="date" name="dayoff" id="dayoff">
+                                            </div>
+                                            <div class="form-control">
+                                                <label for="houroff">
+                                                    Chọn số giờ nghỉ </label>
+                                                <input type="string" name="houroff" id="houroff" max="8">
+                                            </div>
+                                            <button class="btn" type="submit">Xin nghi</button>
+                                        </form>
+
+                                        <% if (cannot==='true' ) { %>
+                                            <p class="centered"><i class="warning"> Không đăng ký được vì số giờ nghỉ đã
+                                                    quá 8 giờ </i></p>
+                                            <% } else { %>
+                                                <p></p>
+                                                <% } %>
+
+
+                                                    <% if (overLeave==='true' ) { %>
+                                                        <p class="centered"><i class="warning"> Không đăng ký được vì quá số ngày nghỉ
+                                                                quy định </i></p>
+                                                        <% } else { %>
+                                                            <p></p>
+                                                            <% } %>
+            </main>
+            <%- include('./includes/end.ejs') %>

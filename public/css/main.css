@@ -226,6 +226,14 @@ form {
   width: 50vw;
 }
 
+.space-div {
+  height: 5vh;
+}
+
+.warning {
+  color: red;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
@@ -237,6 +245,10 @@ form {
 
   .staff-image {
     width: 30vw;
+  }
+
+  .space-div {
+    height: 10vh;
   }
 }
 

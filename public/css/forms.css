@@ -23,3 +23,7 @@
 .form-control textarea:focus {
   outline-color: #00695c;
 }
+
+.form-title {
+  font-size: medium;
+}
