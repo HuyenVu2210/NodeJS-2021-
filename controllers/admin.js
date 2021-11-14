@@ -87,8 +87,10 @@ exports.getCheckIn = (req, res, next) => {
   console.log(cannot);
   Checkin.find({ staffId: req.staff._id, end: null })
     .then((checkin) => {
+      let Checkin;
       if (checkin.length > 0) {
         isCheckedIn = true;
+        Checkin = checkin[0];
       }
       res.render("check-in", {
         staff: Staff,
@@ -97,7 +99,8 @@ exports.getCheckIn = (req, res, next) => {
         isCheckedIn: isCheckedIn,
         cannot: cannot,
         noTimesheet: noTimesheet,
-        overLeave: overLeave
+        overLeave: overLeave,
+        checkin: Checkin
       });
     })
     .catch((err) => {

@@ -37,9 +37,18 @@
                                     </div>
                                 </form>
                                 <% } else { %>
+                                    <div class="container">
+                                        <div>
+                                            <p>Phiên làm việc: </p>
+                                        <p>Bắt đầu: <%= checkin.start.toISOString().slice(0,10) %>, <%= checkin.start.getHours() %>:<%= checkin.start.getMinutes() %></p>
+                                        <p>Địa điểm: <%= checkin.workplace === 'home' ? 'Nhà' : checkin.workplace === 'customer_company' ? 'Khách hàng' : 'Công ty' %></p>
+                                        </div>
+                                    </div>
                                     <form class="product-form" action="/" method="POST">
                                         <input type="hidden" value="checkout" name="checkout">
-                                        <button class="btn" type="submit">Kết thúc</button>
+                                        <div class="centered">
+                                            <button class="btn" type="submit">Kết thúc</button>
+                                        </div>
                                     </form>
                                     <% } %>
 
