@@ -17,42 +17,43 @@
                 </div>
                 <div class="container">
                     <div>
-                        <ul>
-                            <% timesheet.forEach(t=> { %>
-                                <li>
-                                    <p>Ngày làm việc: <%= t._id.slice(0,10) %>
-                                    </p>
-                                    <p>Tổng số giờ làm: <%= t.totalHours %>
-                                    </p>
-                                    <p>Overtime: <%= t.overTime %>
-                                    </p>
-                                    <br>
-                                    <p>Các phiên điểm danh: </p>
-                                    <ul>
-                                        <% t.checkin.forEach(checkin=> { %>
-                                            <li>
-                                                <p>Bắt đầu: 
-                                                    <%= checkin.start.getHours() %>:<%= (checkin.start.getMinutes()<10?'0':'') + checkin.start.getMinutes() %>
-                                                </p>
-                                                <p>Kết thúc: 
-                                                    <%= checkin.end.getHours() %>:<%= (checkin.end.getMinutes()<10?'0':'') + checkin.end.getMinutes() %>
-                                                </p>
-                                                <p>Nơi làm việc: 
-                                                    <%= checkin.workplace === 'home' ? 'Nhà' : checkin.workplace === 'customer_company' ? 'Khách hàng' : 'Công ty' %>
-                                                </p>
-                                            </li>
-                                            <% }) %>
-                                    </ul>
-                                </li>
-                                <% }) %>
-                        </ul>
+                        <% timesheet.forEach(t=> { %>
+                            <div class="card">
+
+                                <span class="timesheet-span">Ngày làm việc: <%= t._id.slice(0,10) %></span>
+                                <span class="timesheet-span">Tổng số giờ làm: <%= t.totalHours %></span>
+                                <span class="timesheet-span">Overtime: <%= t.overTime %></span>
+
+                                <hr>
+                                <p>Các phiên điểm danh: </p>
+                                <div>
+                                    <% t.checkin.forEach(checkin=> { %>
+                                            <div>
+                                                <span>Bắt đầu:
+                                                    <%= checkin.start.getHours() %>:<%=
+                                                            (checkin.start.getMinutes()<10?'0':'') +
+                                                            checkin.start.getMinutes() %>
+                                                </span>
+                                                <span>Kết thúc:
+                                                    <%= checkin.end.getHours() %>:<%= (checkin.end.getMinutes()<10?'0':'') +
+                                                            checkin.end.getMinutes() %>
+                                                </span>
+                                                <span>Nơi làm việc:
+                                                    <%= checkin.workplace==='home' ? 'Nhà' :
+                                                        checkin.workplace==='customer_company' ? 'Khách hàng' : 'Công ty' %>
+                                                </span>
+                                            </div>
+                                        <% }) %>
+                                </div>
+                            </div>
+                            <% }) %>
                     </div>
                 </div>
 
                 <div class="space-div"></div>
 
                 <div class="centered">
-                    <span>Xem lương tháng</span>
+                    <b>Xem lương tháng</b>
                     <% for (const [key, value] of Object.entries(months)) { %>
                         <a href="/salary/<%= key %>">
                             <%= key %>

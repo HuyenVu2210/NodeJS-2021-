@@ -8,22 +8,23 @@
         <main>
             <div class="centered">
                 <h1>
-                    Thông tin nhân viên <span><%= staff.name %></span>
+                    <span><%= staff.name %></span>
                 </h1>
-                <hr>
-                <div class="image">
-                    <img src="<%= staff.image %>" alt="<%= staff.name %>">
-                </div>
             </div>
             <div class="container">
-                <div>
-                    <p>Ngày sinh: <%= staff.doB.toISOString().slice(0,10) %></p>
-                    <p>Hệ số lương: <%= staff.salaryScale %></p>
-                    <p>Ngày bắt đầu làm việc: <%= staff.startDate.toISOString().slice(0,10) %></p>
-                    <p>Bộ phận: <%= staff.department %></p>
-                    <p>Số ngày nghỉ còn lại: <%= Math.round((staff.annualLeave/8) * 100) / 100 %> ngày</p>
-                    <div class="centered">
-                        <a href="/edit-staff">Edit</a>
+                <div class="card-staff">
+                    <div class="image">
+                        <img src="<%= staff.image %>" alt="<%= staff.name %>">
+                    </div>
+                    <div>
+                        <p class="card-staff-info">Ngày sinh: <%= staff.doB.toISOString().slice(0,10) %></p>
+                        <p class="card-staff-info">Hệ số lương: <%= staff.salaryScale %></p>
+                        <p class="card-staff-info">Ngày bắt đầu làm việc: <%= staff.startDate.toISOString().slice(0,10) %></p>
+                        <p class="card-staff-info">Bộ phận: <%= staff.department %></p>
+                        <p class="card-staff-info">Số ngày nghỉ còn lại: <%= Math.round((staff.annualLeave/8) * 100) / 100 %> ngày</p>
+                        <div class="centered card-staff-a">
+                            <a href="/edit-staff">Edit</a>
+                        </div>
                     </div>
                 </div>
             </div>

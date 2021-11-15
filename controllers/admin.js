@@ -504,7 +504,8 @@ exports.getSalary = (req, res, next) => {
                 docTitle: req.staff.name,
                 path: "/salary",
                 underTime: Math.round(underTime * 100) / 100,
-                overTime: overtime
+                overTime: overtime,
+                month: month
               })
           })
         }
