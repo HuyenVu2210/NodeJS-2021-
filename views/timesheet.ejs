@@ -26,9 +26,9 @@
 
                                 <hr>
                                 <p>Các phiên điểm danh: </p>
-                                <div>
+                                <ul class="checkin-info-list">
                                     <% t.checkin.forEach(checkin=> { %>
-                                            <div>
+                                            <li>
                                                 <span>Bắt đầu:
                                                     <%= checkin.start.getHours() %>:<%=
                                                             (checkin.start.getMinutes()<10?'0':'') +
@@ -42,9 +42,9 @@
                                                     <%= checkin.workplace==='home' ? 'Nhà' :
                                                         checkin.workplace==='customer_company' ? 'Khách hàng' : 'Công ty' %>
                                                 </span>
-                                            </div>
+                                            </li>
                                         <% }) %>
-                                </div>
+                                        </ul>
                             </div>
                             <% }) %>
                     </div>

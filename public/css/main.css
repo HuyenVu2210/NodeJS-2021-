@@ -267,6 +267,10 @@ form {
   padding-bottom: 3vh;
 }
 
+.checkin-info-list {
+  list-style-type: decimal;
+}
+
 @media (min-width: 768px) {
   .main-header__nav {
     display: flex;
