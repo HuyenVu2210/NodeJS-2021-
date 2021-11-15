@@ -362,7 +362,7 @@ exports.postDayoff = (req, res, next) => {
       if (dayoff.length > 0) {
         let existingDayoff = dayoff[0];
         let existingHoursOff = existingDayoff.totalHoursOff;
-        const totalHoursOff =
+        let totalHoursOff =
           existingHoursOff + houroff < 8
             ? existingHoursOff + houroff
             : existingHoursOff;
@@ -390,19 +390,38 @@ exports.postDayoff = (req, res, next) => {
         });
       } else {
         let month = reqdayoff.slice(5,7);
-        const newDayoff = new Dayoff({
-          staffId: req.staff._id,
-          date: reqdayoff,
-          month: month,
-          totalHoursOff: houroff,
-        });
-        newDayoff.save().then((results) => {
-          req.staff.annualLeave = req.staff.annualLeave - houroff;
-          req.staff.save()
-          .then(results => {
-            res.redirect("/");
-          })
-        });
+
+        if (houroff < 8) {
+          const newDayoff = new Dayoff({
+            staffId: req.staff._id,
+            date: reqdayoff,
+            month: month,
+            totalHoursOff: houroff,
+          });
+          newDayoff.save().then((results) => {
+            req.staff.annualLeave = req.staff.annualLeave - houroff;
+            req.staff.save()
+            .then(results => {
+              res.redirect(
+                url.format({
+                  pathname: "/",
+                  query: {
+                    cannot: cannot,
+                  },
+                })
+              );;
+            })
+          });
+        } else {
+          res.redirect(
+            url.format({
+              pathname: "/",
+              query: {
+                cannot: true,
+              },
+            })
+          );
+        }
       }
     });
   }
@@ -422,7 +441,7 @@ exports.getSalary = (req, res, next) => {
         return t;
       }, Object.create(null));
 
-      console.log(result);
+      // console.log(result);
 
       for (const [key, value] of Object.entries(result)) {
         // find the value of the selected month
@@ -457,9 +476,28 @@ exports.getSalary = (req, res, next) => {
           });
           console.log(workingDays);
 
-          Dayoff.find({'date.slice(5,7)' : month})
+          // find the array of dayoff
+          Dayoff.find({'month' : month})
           .then(d => {
-            console.log('dayoff' + JSON.stringify(d));
+            console.log(d);
+
+            // create sum for undertime
+            let underTime = 0;
+            businessDay.forEach(bd => {
+              underTime = underTime + 8;
+              workingDays.forEach(wd => {
+                if (wd.date === bd) {
+                  underTime = underTime - wd.hours;
+                  d.forEach(dd => {
+                    if (dd.date.toISOString().slice(0,10) === bd) {
+                      underTime = underTime + dd.totalHoursOff
+                    }
+                  })
+                }
+              })
+            });
+
+            console.log(underTime);
           })
         }
       };
