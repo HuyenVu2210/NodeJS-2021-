@@ -45,6 +45,9 @@ const staffSchema = new Schema({
     tem: {
       type: Number,
     },
+    date: {
+      type: Date,
+    },
     result: {
       type: String,
     },

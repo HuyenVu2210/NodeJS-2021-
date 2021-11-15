@@ -279,6 +279,7 @@ exports.postVaccine = (req, res, next) => {
   const v2 = { shot: shot2, date: date2 };
 
   req.staff.covid.tem = tem;
+  req.staff.covid.date = newDate;
   req.staff.covid.result = result;
   req.staff.covid.vaccine[0] = v1;
   req.staff.covid.vaccine[1] = v2;

@@ -243,6 +243,10 @@ form {
   color: #ffffff;
 }
 
+.card:first-child {
+  margin-top: 3vh;
+}
+
 .card hr {
  color: #ffffff;
 }
