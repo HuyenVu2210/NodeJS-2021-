@@ -4,11 +4,27 @@
 
     <body>
         <%- include('./includes/navigation.ejs') %>
-        <main class="centered">
-            <h1><%= staff.name %></h1>
-            <hr>
-            <div class="image">
-                <img src="<%= staff.image %>" alt="<%= staff.name %>">
+        <main>
+            <div class="centered">
+                <h1>
+                    Đăng ký điểm danh
+                </h1>
+                <hr>
+                <div class="image">
+                    <img src="<%= staff.image %>" alt="<%= staff.name %>">
+                </div>
+            </div>
+
+            <div class="container">
+                <div>
+                    <p>Tổng số giờ làm thêm: <%= overTime %></p>
+                    <p>Số giờ làm chưa đủ: <%= underTime %></p>
+                    <p>Hệ số lương: <%= staff.salaryScale %></p>
+                    <p>Lương: <%= staff.salaryScale * 3000000 + (overTime - underTime) * 200000 %></p>
+                    <hr>
+                    <p><i>Công thức tính lương: </i></p>
+                    <p><i>salaryScale * 3000000 + (overTime - số giờ làm thiếu) * 200000</i></p>
+                </div>
             </div>
             
         </main>

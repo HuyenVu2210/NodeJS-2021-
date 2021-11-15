@@ -460,6 +460,7 @@ exports.getSalary = (req, res, next) => {
             });
           // console.log(businessDay);
 
+          // find the total overtime 
           value.forEach(v => {
             overtime = overtime + v.overTime;
           });
@@ -498,6 +499,13 @@ exports.getSalary = (req, res, next) => {
             });
 
             console.log(underTime);
+            res.render('salary', {
+                staff: req.staff,
+                docTitle: req.staff.name,
+                path: "/salary",
+                underTime: Math.round(underTime * 100) / 100,
+                overTime: overtime
+              })
           })
         }
       };
@@ -511,12 +519,14 @@ exports.getSalary = (req, res, next) => {
       //   months: result
       // })
     } else {
-      // res.redirect(url.format({
-      //   pathname:"/",
-      //   query: {
-      //      noTimesheet: true
-      //    }
-      // }))
+      res.redirect(
+        url.format({
+          pathname: "/",
+          query: {
+            noTimesheet: true,
+          },
+        })
+      );
     }
   });
 };
