@@ -1,59 +1,21 @@
-// const Product = require('../models/product');
+const url = require("url");
+
 const Checkin = require("../models/checkin");
 const Dayoff = require("../models/dayoff");
 const Timesheet = require("../models/timesheet");
-const url = require("url");
 
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
 var moment = require("moment-business-days");
 
-var july4th = "2015-07-04";
-var laborDay = "2015-05-01";
+var july4th = "2021-07-04";
+var laborDay = "2021-05-01";
 
 moment.updateLocale("vn", {
   workingWeekdays: [1, 2, 3, 4, 5],
   holidays: [july4th, laborDay],
   holidayFormat: "YYYY-MM-DD",
 });
-
-// const User = require("../models/user");
-
-// const mongodb = require("mongodb");
-// const ObjectId = mongodb.ObjectId;
-
-// exports.getAddProduct = (req, res, next) => {
-//   res.render("admin/edit-product", {
-//     docTitle: "Add Product",
-//     path: "/admin/add-product",
-//     editing: false,
-//   });
-// };
-
-// // Add product
-// exports.postAddProduct = (req, res, next) => {
-//   const title = req.body.title;
-//   const imageUrl = req.body.imageUrl;
-//   const description = req.body.description;
-//   const price = req.body.price;
-//   const product = new Product({
-//       title: title,
-//       imageUrl: imageUrl,
-//       description: description,
-//       price: price,
-//       userId: req.user._id    // can also only write req.user then mongoose will only extract the _id
-//   });
-//   product
-//     .save()
-//     .then((results) => {
-//       console.log(results);
-//       console.log("product created!");
-//       res.redirect("/admin/products");
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// };
 
 // show staff info /
 exports.getStaffDetail = (req, res, next) => {
@@ -104,12 +66,13 @@ exports.getCheckIn = (req, res, next) => {
     .then((checkin) => {
       let Checkin;
       if (checkin.length > 0) {
+        // do not show checkin form if already checked in and not check out yet
         isCheckedIn = true;
         Checkin = checkin[0];
       }
       res.render("check-in", {
         staff: Staff,
-        docTitle: Staff.name,
+        docTitle: 'Điểm danh',
         path: "/",
         isCheckedIn: isCheckedIn,
         cannot: cannot,
@@ -280,7 +243,7 @@ exports.getTimesheet = (req, res, next) => {
 
       res.render("timesheet", {
         staff: req.staff,
-        docTitle: req.staff.name,
+        docTitle: 'Tra cứu giờ làm',
         path: "/timesheet",
         timesheet: timesheet.timesheet,
         months: result,
@@ -303,7 +266,7 @@ exports.getVaccine = (req, res, next) => {
   const Staff = req.staff;
   res.render("vaccine", {
     staff: Staff,
-    docTitle: Staff.name,
+    docTitle: 'Thông tin covid',
     path: "/vaccine",
   });
 };
@@ -501,7 +464,7 @@ exports.getSalary = (req, res, next) => {
           console.log(underTime);
           res.render("salary", {
             staff: req.staff,
-            docTitle: req.staff.name,
+            docTitle: 'Lương tháng ' + month,
             path: "/salary",
             underTime: Math.round(underTime * 100) / 100,
             overTime: overtime,
@@ -531,18 +494,3 @@ exports.getSalary = (req, res, next) => {
     }
   });
 };
-
-// delete product
-// exports.postDeleteProduct = (req, res, next) => {
-//   const prodId = req.body.productId;
-//   Product.findByIdAndRemove(prodId)
-//     .then((results) => {
-//       console.log("deleted product");
-//       res.redirect("/admin/products");
-//     })
-//     .catch((err) => {
-//       console.log("delete product failed" + err);
-//     });
-// };
-
-// get all products ==> /admin/products
