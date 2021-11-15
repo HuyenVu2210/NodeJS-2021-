@@ -6,15 +6,15 @@ const url = require("url");
 
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
-var moment = require('moment-business-days');
- 
-var july4th = '2015-07-04';
-var laborDay = '2015-05-01';
- 
-moment.updateLocale('vn', {
-   workingWeekdays: [1, 2, 3, 4, 5],
-   holidays: [july4th, laborDay],
-   holidayFormat: 'YYYY-MM-DD'
+var moment = require("moment-business-days");
+
+var july4th = "2015-07-04";
+var laborDay = "2015-05-01";
+
+moment.updateLocale("vn", {
+  workingWeekdays: [1, 2, 3, 4, 5],
+  holidays: [july4th, laborDay],
+  holidayFormat: "YYYY-MM-DD",
 });
 
 // const User = require("../models/user");
@@ -116,7 +116,7 @@ exports.getCheckIn = (req, res, next) => {
         noTimesheet: noTimesheet,
         overLeave: overLeave,
         checkin: Checkin,
-        holiday: holiday
+        holiday: holiday,
       });
     })
     .catch((err) => {
@@ -168,7 +168,7 @@ exports.postCheckIn = (req, res, next) => {
                   let totalHours, overTime;
 
                   // check whether the date is business day => if business day then all is overTime
-                  if(moment(i._id, 'YYYY-MM-DD').isBusinessDay()) {
+                  if (moment(i._id, "YYYY-MM-DD").isBusinessDay()) {
                     totalHours = i.totalHours;
                     overTime = totalHours > 8 ? totalHours - 8 : 0;
                   } else {
@@ -201,14 +201,15 @@ exports.postCheckIn = (req, res, next) => {
 
                     // add checkin info to timesheet
                     forRenderTimesheet.forEach((i) => {
-                      let hours = i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
+                      let hours =
+                        i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
                       console.log(hours);
                       timesheet.timesheet.push({
                         _id: i._id,
                         checkin: [...i.checkin],
                         totalHours: i.totalHours,
                         overTime: i.overTime,
-                        hours: hours
+                        hours: hours,
                       });
                     });
 
@@ -328,7 +329,7 @@ exports.postVaccine = (req, res, next) => {
   req.staff.covid.vaccine[1] = v2;
 
   req.staff.save().then((results) => {
-    res.redirect('/');
+    res.redirect("/");
   });
 };
 
@@ -347,7 +348,7 @@ exports.postDayoff = (req, res, next) => {
         },
       })
     );
-  } else if (!moment(reqdayoff, 'YYYY-MM-DD').isBusinessDay()) {
+  } else if (!moment(reqdayoff, "YYYY-MM-DD").isBusinessDay()) {
     res.redirect(
       url.format({
         pathname: "/",
@@ -367,17 +368,16 @@ exports.postDayoff = (req, res, next) => {
             ? existingHoursOff + houroff
             : existingHoursOff;
         existingDayoff.totalHoursOff = totalHoursOff;
-  
+
         const cannot = totalHoursOff !== existingHoursOff + houroff;
-  
+
         existingDayoff.save().then((results) => {
           req.staff.annualLeave =
             totalHoursOff !== existingHoursOff + houroff
               ? req.staff.annualLeave
               : req.staff.annualLeave - totalHoursOff;
-  
-          req.staff.save()
-          .then(results => {
+
+          req.staff.save().then((results) => {
             res.redirect(
               url.format({
                 pathname: "/",
@@ -386,10 +386,10 @@ exports.postDayoff = (req, res, next) => {
                 },
               })
             );
-          })
+          });
         });
       } else {
-        let month = reqdayoff.slice(5,7);
+        let month = reqdayoff.slice(5, 7);
 
         if (houroff < 8) {
           const newDayoff = new Dayoff({
@@ -400,8 +400,7 @@ exports.postDayoff = (req, res, next) => {
           });
           newDayoff.save().then((results) => {
             req.staff.annualLeave = req.staff.annualLeave - houroff;
-            req.staff.save()
-            .then(results => {
+            req.staff.save().then((results) => {
               res.redirect(
                 url.format({
                   pathname: "/",
@@ -409,8 +408,8 @@ exports.postDayoff = (req, res, next) => {
                     cannot: cannot,
                   },
                 })
-              );;
-            })
+              );
+            });
           });
         } else {
           res.redirect(
@@ -443,82 +442,83 @@ exports.getSalary = (req, res, next) => {
 
       // console.log(result);
 
-      for (const [key, value] of Object.entries(result)) {
-        // find the value of the selected month
+      // find the value of the selected month
+      const found = Object.entries(result).find(
+        ([key, value]) => key === month
+      );
+      // console.log(found[1]);
+       if (found) {
+        let overtime = 0;
         let workingDays = [];
         let businessDay;
-
-        if (key === month) {
-          let overtime = 0;
-          
-          // get the array of business day
-          businessDay = moment("2021-" + month + "-01", "YYYY-MM-DD")
-            .monthBusinessDays()
-            .slice(1)
-            .map((m) => {
-              return m.toDate().toISOString().slice(0, 10);
-            });
-          // console.log(businessDay);
-
-          // find the total overtime 
-          value.forEach(v => {
-            overtime = overtime + v.overTime;
+  
+        // get the array of business day
+        businessDay = moment("2021-" + month + "-01", "YYYY-MM-DD")
+          .monthBusinessDays()
+          .slice(1)
+          .map((m) => {
+            return m.toDate().toISOString().slice(0, 10);
           });
-          console.log(overtime);
-
-          value.forEach(v => {
-            // get array of working days in month
-            let date = v._id.slice(0,10);
-            let hours = v.hours;
-            workingDays.push({
-              date: date,
-              hours: hours
+        // console.log(businessDay);
+  
+        // find the total overtime
+        found[1].forEach((v) => {
+          overtime = overtime + v.overTime;
+        });
+        // console.log(overtime);
+  
+        found[1].forEach((v) => {
+          // get array of working days in month
+          let date = v._id.slice(0, 10);
+          let hours = v.hours;
+          workingDays.push({
+            date: date,
+            hours: hours,
+          });
+        });
+        // console.log(workingDays);
+  
+        // find the array of dayoff
+        Dayoff.find({ month: month }).then((d) => {
+          console.log(d);
+  
+          // create sum for undertime
+          let underTime = 0;
+          businessDay.forEach((bd) => {
+            underTime = underTime + 8;
+            workingDays.forEach((wd) => {
+              if (wd.date === bd) {
+                underTime = underTime - wd.hours;
+                d.forEach((dd) => {
+                  if (dd.date.toISOString().slice(0, 10) === bd) {
+                    underTime = underTime + dd.totalHoursOff;
+                  }
+                });
+              }
             });
           });
-          console.log(workingDays);
-
-          // find the array of dayoff
-          Dayoff.find({'month' : month})
-          .then(d => {
-            console.log(d);
-
-            // create sum for undertime
-            let underTime = 0;
-            businessDay.forEach(bd => {
-              underTime = underTime + 8;
-              workingDays.forEach(wd => {
-                if (wd.date === bd) {
-                  underTime = underTime - wd.hours;
-                  d.forEach(dd => {
-                    if (dd.date.toISOString().slice(0,10) === bd) {
-                      underTime = underTime + dd.totalHoursOff
-                    }
-                  })
-                }
-              })
-            });
-
-            console.log(underTime);
-            res.render('salary', {
-                staff: req.staff,
-                docTitle: req.staff.name,
-                path: "/salary",
-                underTime: Math.round(underTime * 100) / 100,
-                overTime: overtime,
-                month: month
-              })
+  
+          console.log(underTime);
+          res.render("salary", {
+            staff: req.staff,
+            docTitle: req.staff.name,
+            path: "/salary",
+            underTime: Math.round(underTime * 100) / 100,
+            overTime: overtime,
+            month: month,
+          });
+        });
+       } else {
+         // if there is no timesheet info for that month
+        res.redirect(
+          url.format({
+            pathname: "/",
+            query: {
+              noTimesheet: true,
+            },
           })
-        }
-      };
-
-
-      // res.render('timesheet', {
-      //   staff: req.staff,
-      //   docTitle: req.staff.name,
-      //   path: "/timesheet",
-      //   timesheet: timesheet.timesheet,
-      //   months: result
-      // })
+        );
+       }
     } else {
       res.redirect(
         url.format({
