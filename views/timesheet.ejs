@@ -28,23 +28,23 @@
                                 <p>Các phiên điểm danh: </p>
                                 <ul class="checkin-info-list">
                                     <% t.checkin.forEach(checkin=> { %>
-                                            <li>
-                                                <span>Bắt đầu:
-                                                    <%= checkin.start.getHours() %>:<%=
-                                                            (checkin.start.getMinutes()<10?'0':'') +
-                                                            checkin.start.getMinutes() %>
-                                                </span>
-                                                <span>Kết thúc:
-                                                    <%= checkin.end.getHours() %>:<%= (checkin.end.getMinutes()<10?'0':'') +
-                                                            checkin.end.getMinutes() %>
-                                                </span>
-                                                <span>Nơi làm việc:
-                                                    <%= checkin.workplace==='home' ? 'Nhà' :
-                                                        checkin.workplace==='customer_company' ? 'Khách hàng' : 'Công ty' %>
-                                                </span>
-                                            </li>
+                                        <li>
+                                            <span>Bắt đầu:
+                                                <%= checkin.start.getHours() %>:<%=
+                                                        (checkin.start.getMinutes()<10?'0':'') +
+                                                        checkin.start.getMinutes() %>
+                                            </span>
+                                            <span>Kết thúc:
+                                                <%= checkin.end.getHours() %>:<%= (checkin.end.getMinutes()<10?'0':'') +
+                                                        checkin.end.getMinutes() %>
+                                            </span>
+                                            <span>Nơi làm việc:
+                                                <%= checkin.workplace==='home' ? 'Nhà' :
+                                                    checkin.workplace==='customer_company' ? 'Khách hàng' : 'Công ty' %>
+                                            </span>
+                                        </li>
                                         <% }) %>
-                                        </ul>
+                                </ul>
                             </div>
                             <% }) %>
                     </div>

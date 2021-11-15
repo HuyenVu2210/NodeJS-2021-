@@ -5,51 +5,50 @@ const Schema = mongoose.Schema;
 const staffSchema = new Schema({
   name: {
     type: String,
-    required: true
+    required: true,
   },
   doB: {
     type: Date,
-    required: true
+    required: true,
   },
-  salaryScale : {
+  salaryScale: {
     type: Number,
-    required: true
+    required: true,
   },
   startDate: {
     type: Date,
-    required: true
+    required: true,
   },
   department: {
     type: String,
-    required: true
+    required: true,
   },
   annualLeave: {
     type: Number,
-    required: true
+    required: true,
   },
   image: {
     type: String,
-    required: true
+    required: true,
   },
   covid: {
     vaccine: [
       {
         shot: {
-          type: String
+          type: String,
         },
         date: {
-          type: Date
-        }
-      }
+          type: Date,
+        },
+      },
     ],
     tem: {
-        type: Number
-      },
-      result: {
-        type: String
-      }
-  }
+      type: Number,
+    },
+    result: {
+      type: String,
+    },
+  },
 });
 
-module.exports = mongoose.model('Staff', staffSchema)
-
+module.exports = mongoose.model("Staff", staffSchema);

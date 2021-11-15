@@ -44,7 +44,6 @@ exports.postEditStaff = (req, res, next) => {
   Staff.image = image;
   Staff.save()
     .then((results) => {
-      console.log("edited staff");
       res.redirect("/staff");
     })
     .catch((err) => {
@@ -61,7 +60,6 @@ exports.getCheckIn = (req, res, next) => {
   let overLeave = req.query.overLeave;
   let holiday = req.query.holiday;
 
-  console.log(cannot);
   Checkin.find({ staffId: req.staff._id, end: null })
     .then((checkin) => {
       let Checkin;
@@ -102,11 +100,9 @@ exports.postCheckIn = (req, res, next) => {
 
       existingCheckin.hour = Math.round(hour * 100) / 100;
 
-      // console.log(typeof hour);
       existingCheckin
         .save()
         .then((results) => {
-          console.log("checked in/out");
           Checkin.aggregate(
             [
               { $match: { staffId: req.staff._id } },
@@ -124,7 +120,6 @@ exports.postCheckIn = (req, res, next) => {
               if (err) {
                 console.log(err);
               } else {
-                // console.log(results);
                 let forRenderTimesheet;
                 time = results.map((i) => {
                   const date = i._id + "T00:00:00.000+00:00";
@@ -152,7 +147,6 @@ exports.postCheckIn = (req, res, next) => {
 
                 Promise.all(time).then(function (results) {
                   forRenderTimesheet = results;
-                  // console.log(JSON.stringify(forRenderTimesheet));
 
                   // find && update timesheet for staff
                   Timesheet.find({ staffId: req.staff._id }).then((t) => {
@@ -166,7 +160,6 @@ exports.postCheckIn = (req, res, next) => {
                     forRenderTimesheet.forEach((i) => {
                       let hours =
                         i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
-                      console.log(hours);
                       timesheet.timesheet.push({
                         _id: i._id,
                         checkin: [...i.checkin],
@@ -207,7 +200,6 @@ exports.postCheckIn = (req, res, next) => {
         (today.getMonth() + 1) +
         "-" +
         today.getDate();
-      // console.log(date);
 
       checkin.workplace = workplace;
       checkin.start = today;
@@ -216,7 +208,6 @@ exports.postCheckIn = (req, res, next) => {
       checkin
         .save()
         .then((results) => {
-          console.log("checked in/out");
           res.redirect("/");
         })
         .catch((err) => {
@@ -239,7 +230,8 @@ exports.getTimesheet = (req, res, next) => {
         return t;
       }, Object.create(null));
 
-      // console.log(JSON.stringify(result));
+      // sort timesheet by date desc
+      timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
 
       res.render("timesheet", {
         staff: req.staff,
@@ -299,7 +291,6 @@ exports.postVaccine = (req, res, next) => {
 // post dayoff info
 exports.postDayoff = (req, res, next) => {
   const reqdayoff = req.body.dayoff + "T00:00:00.000+00:00";
-  console.log(reqdayoff);
   const houroff = Math.round(req.body.houroff * 100) / 100;
 
   if (req.staff.annualLeave - houroff < 0) {
@@ -364,14 +355,7 @@ exports.postDayoff = (req, res, next) => {
           newDayoff.save().then((results) => {
             req.staff.annualLeave = req.staff.annualLeave - houroff;
             req.staff.save().then((results) => {
-              res.redirect(
-                url.format({
-                  pathname: "/",
-                  query: {
-                    cannot: cannot,
-                  },
-                })
-              );
+              res.redirect('/');
             });
           });
         } else {
@@ -392,7 +376,6 @@ exports.postDayoff = (req, res, next) => {
 // get salary
 exports.getSalary = (req, res, next) => {
   const month = req.params.month;
-  console.log(month);
   Timesheet.find({ staffId: req.staff._id }).then((t) => {
     if (t.length > 0) {
       const timesheet = t[0];
@@ -403,13 +386,10 @@ exports.getSalary = (req, res, next) => {
         return t;
       }, Object.create(null));
 
-      // console.log(result);
-
       // find the value of the selected month
       const found = Object.entries(result).find(
         ([key, value]) => key === month
       );
-      // console.log(found[1]);
        if (found) {
         let overtime = 0;
         let workingDays = [];
@@ -422,13 +402,11 @@ exports.getSalary = (req, res, next) => {
           .map((m) => {
             return m.toDate().toISOString().slice(0, 10);
           });
-        // console.log(businessDay);
   
         // find the total overtime
         found[1].forEach((v) => {
           overtime = overtime + v.overTime;
         });
-        // console.log(overtime);
   
         found[1].forEach((v) => {
           // get array of working days in month
@@ -439,11 +417,9 @@ exports.getSalary = (req, res, next) => {
             hours: hours,
           });
         });
-        // console.log(workingDays);
   
         // find the array of dayoff
         Dayoff.find({ month: month }).then((d) => {
-          console.log(d);
   
           // create sum for undertime
           let underTime = 0;
@@ -461,7 +437,6 @@ exports.getSalary = (req, res, next) => {
             });
           });
   
-          console.log(underTime);
           res.render("salary", {
             staff: req.staff,
             docTitle: 'Lương tháng ' + month,

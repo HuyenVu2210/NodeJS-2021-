@@ -10,13 +10,13 @@ const timesheetSchema = new Schema({
   timesheet: [
     {
       _id: {
-        type: String
+        type: String,
       },
       checkin: [
         {
           _id: {
             type: Schema.Types.ObjectId,
-            refer: 'Checkin'
+            refer: "Checkin",
           },
           start: {
             type: Date,
@@ -31,23 +31,23 @@ const timesheetSchema = new Schema({
             // required: true
           },
           date: {
-            type: Date
+            type: Date,
           },
           hour: {
             type: Number,
-          }
+          },
         },
       ],
       totalHours: {
-        type: Number
+        type: Number,
       },
       overTime: {
-        type: Number
+        type: Number,
       },
       hours: {
-        type: Number
+        type: Number,
       },
-    }
+    },
   ],
 });
 

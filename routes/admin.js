@@ -1,16 +1,8 @@
 const express = require('express');
-// const path = require('path');
-// const rootDir = require('../util/path');
 
 const adminController = require('../controllers/admin')
 
 const router = express.Router();
-
-// router.get('/products', adminController.getProducts);
-
-// router.get('/add-product', adminController.getAddProduct);
-
-// router.post('/add-product', adminController.postAddProduct);
 
 // get - get edit - post edit staff info
 router.get('/staff', adminController.getStaffDetail);
@@ -35,12 +27,7 @@ router.post('/vaccine', adminController.postVaccine);
 // post day off
 router.post('/dayoff', adminController.postDayoff);
 
-
 // get salary
 router.get('/salary/:month', adminController.getSalary);
-
-
-
-// router.post('/delete-product', adminController.postDeleteProduct);
 
 module.exports = router;
