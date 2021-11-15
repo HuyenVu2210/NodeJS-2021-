@@ -11,7 +11,8 @@ var moment = require('moment-business-days');
 var july4th = '2015-07-04';
 var laborDay = '2015-05-01';
  
-moment.updateLocale('us', {
+moment.updateLocale('vn', {
+   workingWeekdays: [1, 2, 3, 4, 5],
    holidays: [july4th, laborDay],
    holidayFormat: 'YYYY-MM-DD'
 });
@@ -188,23 +189,30 @@ exports.postCheckIn = (req, res, next) => {
 
                 Promise.all(time).then(function (results) {
                   forRenderTimesheet = results;
-                  console.log(JSON.stringify(forRenderTimesheet));
+                  // console.log(JSON.stringify(forRenderTimesheet));
 
+                  // find && update timesheet for staff
                   Timesheet.find({ staffId: req.staff._id }).then((t) => {
                     // create temporary timesheet to get info
                     const timesheet = new Timesheet({
                       staffId: req.staff._id,
                       timesheet: [],
                     });
+
+                    // add checkin info to timesheet
                     forRenderTimesheet.forEach((i) => {
+                      let hours = i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
+                      console.log(hours);
                       timesheet.timesheet.push({
                         _id: i._id,
                         checkin: [...i.checkin],
                         totalHours: i.totalHours,
                         overTime: i.overTime,
+                        hours: hours
                       });
                     });
 
+                    // if already have a timesheet
                     if (t.length > 0) {
                       let existingTimesheet = t[0];
                       existingTimesheet.timesheet = timesheet.timesheet;
@@ -260,6 +268,7 @@ exports.getTimesheet = (req, res, next) => {
     if (t.length > 0) {
       const timesheet = t[0];
 
+      // get the array of months & values
       let result = timesheet.timesheet.reduce(function (t, a) {
         t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
         t[a._id.slice(5, 7)].push(a);
@@ -326,6 +335,7 @@ exports.postVaccine = (req, res, next) => {
 // post dayoff info
 exports.postDayoff = (req, res, next) => {
   const reqdayoff = req.body.dayoff + "T00:00:00.000+00:00";
+  console.log(reqdayoff);
   const houroff = Math.round(req.body.houroff * 100) / 100;
 
   if (req.staff.annualLeave - houroff < 0) {
@@ -347,6 +357,7 @@ exports.postDayoff = (req, res, next) => {
       })
     );
   } else {
+    // find && update or create if not existing yet
     Dayoff.find({ staffId: req.staff._id, date: reqdayoff }).then((dayoff) => {
       if (dayoff.length > 0) {
         let existingDayoff = dayoff[0];
@@ -378,9 +389,11 @@ exports.postDayoff = (req, res, next) => {
           })
         });
       } else {
+        let month = reqdayoff.slice(5,7);
         const newDayoff = new Dayoff({
           staffId: req.staff._id,
           date: reqdayoff,
+          month: month,
           totalHoursOff: houroff,
         });
         newDayoff.save().then((results) => {
@@ -409,16 +422,49 @@ exports.getSalary = (req, res, next) => {
         return t;
       }, Object.create(null));
 
+      console.log(result);
+
       for (const [key, value] of Object.entries(result)) {
+        // find the value of the selected month
+        let workingDays = [];
+        let businessDay;
+
         if (key === month) {
           let overtime = 0;
-          // console.log(value)
-          value.forEach((v) => {
+          
+          // get the array of business day
+          businessDay = moment("2021-" + month + "-01", "YYYY-MM-DD")
+            .monthBusinessDays()
+            .slice(1)
+            .map((m) => {
+              return m.toDate().toISOString().slice(0, 10);
+            });
+          // console.log(businessDay);
+
+          value.forEach(v => {
             overtime = overtime + v.overTime;
           });
           console.log(overtime);
+
+          value.forEach(v => {
+            // get array of working days in month
+            let date = v._id.slice(0,10);
+            let hours = v.hours;
+            workingDays.push({
+              date: date,
+              hours: hours
+            });
+          });
+          console.log(workingDays);
+
+          Dayoff.find({'date.slice(5,7)' : month})
+          .then(d => {
+            console.log('dayoff' + JSON.stringify(d));
+          })
         }
-      }
+      };
+
+
       // res.render('timesheet', {
       //   staff: req.staff,
       //   docTitle: req.staff.name,

@@ -10,6 +10,9 @@ const dayoffSchema = new Schema({
   date: {
     type: Date,
   },
+  month: {
+    type: Number,
+  },
   totalHoursOff: {
     type: Number,
   },

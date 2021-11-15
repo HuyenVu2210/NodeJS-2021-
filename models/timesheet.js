@@ -44,6 +44,9 @@ const timesheetSchema = new Schema({
       overTime: {
         type: Number
       },
+      hours: {
+        type: Number
+      },
     }
   ],
 });
