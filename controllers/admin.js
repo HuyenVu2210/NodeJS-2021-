@@ -3,6 +3,19 @@ const Checkin = require("../models/checkin");
 const Dayoff = require("../models/dayoff");
 const Timesheet = require("../models/timesheet");
 const url = require("url");
+
+// use moment-business-days to check holiday
+// example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
+var moment = require('moment-business-days');
+ 
+var july4th = '2015-07-04';
+var laborDay = '2015-05-01';
+ 
+moment.updateLocale('us', {
+   holidays: [july4th, laborDay],
+   holidayFormat: 'YYYY-MM-DD'
+});
+
 // const User = require("../models/user");
 
 // const mongodb = require("mongodb");
@@ -123,7 +136,7 @@ exports.postCheckIn = (req, res, next) => {
 
       existingCheckin.hour = Math.round(hour * 100) / 100;
 
-      console.log(typeof hour);
+      // console.log(typeof hour);
       existingCheckin
         .save()
         .then((results) => {
@@ -149,8 +162,17 @@ exports.postCheckIn = (req, res, next) => {
                 let forRenderTimesheet;
                 time = results.map((i) => {
                   const date = i._id + "T00:00:00.000+00:00";
-                  const totalHours = i.totalHours;
-                  const overTime = totalHours > 8 ? totalHours - 8 : 0;
+                  let totalHours, overTime;
+
+                  // check whether the date is business day => if business day then all is overTime
+                  if(moment(i._id, 'YYYY-MM-DD').isBusinessDay()) {
+                    totalHours = i.totalHours;
+                    overTime = totalHours > 8 ? totalHours - 8 : 0;
+                  } else {
+                    totalHours = 0;
+                    overTime = i.totalHours;
+                  }
+
                   return Checkin.find({ date: date }) // have to return in able to handle as a promise
                     .then((checkin) => {
                       return {
@@ -211,7 +233,7 @@ exports.postCheckIn = (req, res, next) => {
         (today.getMonth() + 1) +
         "-" +
         today.getDate();
-      console.log(date);
+      // console.log(date);
 
       checkin.workplace = workplace;
       checkin.start = today;

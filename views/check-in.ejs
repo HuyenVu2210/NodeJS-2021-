@@ -40,7 +40,7 @@
                                     <div class="container">
                                         <div>
                                             <p>Phiên làm việc: </p>
-                                        <p>Bắt đầu: <%= checkin.start.toISOString().slice(0,10) %>, <%= checkin.start.getHours() %>:<%= checkin.start.getMinutes() %></p>
+                                        <p>Bắt đầu: <%= checkin.start.toISOString().slice(0,10) %>, <%= checkin.start.getHours() %>:<%= (checkin.start.getMinutes()<10?'0':'') + checkin.start.getMinutes() %></p>
                                         <p>Địa điểm: <%= checkin.workplace === 'home' ? 'Nhà' : checkin.workplace === 'customer_company' ? 'Khách hàng' : 'Công ty' %></p>
                                         </div>
                                     </div>

@@ -32,10 +32,10 @@
                                         <% t.checkin.forEach(checkin=> { %>
                                             <li>
                                                 <p>Bắt đầu: 
-                                                    <%= checkin.start.getHours() %>:<%= checkin.start.getMinutes() %>
+                                                    <%= checkin.start.getHours() %>:<%= (checkin.start.getMinutes()<10?'0':'') + checkin.start.getMinutes() %>
                                                 </p>
                                                 <p>Kết thúc: 
-                                                    <%= checkin.end.getHours() %>:<%= checkin.end.getMinutes() %>
+                                                    <%= checkin.end.getHours() %>:<%= (checkin.end.getMinutes()<10?'0':'') + checkin.end.getMinutes() %>
                                                 </p>
                                                 <p>Nơi làm việc: 
                                                     <%= checkin.workplace === 'home' ? 'Nhà' : checkin.workplace === 'customer_company' ? 'Khách hàng' : 'Công ty' %>
