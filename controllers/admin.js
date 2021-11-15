@@ -96,6 +96,7 @@ exports.getCheckIn = (req, res, next) => {
   let cannot = req.query.cannot;
   let noTimesheet = req.query.noTimesheet;
   let overLeave = req.query.overLeave;
+  let holiday = req.query.holiday;
 
   console.log(cannot);
   Checkin.find({ staffId: req.staff._id, end: null })
@@ -113,7 +114,8 @@ exports.getCheckIn = (req, res, next) => {
         cannot: cannot,
         noTimesheet: noTimesheet,
         overLeave: overLeave,
-        checkin: Checkin
+        checkin: Checkin,
+        holiday: holiday
       });
     })
     .catch((err) => {
@@ -332,6 +334,15 @@ exports.postDayoff = (req, res, next) => {
         pathname: "/",
         query: {
           overLeave: true,
+        },
+      })
+    );
+  } else if (!moment(reqdayoff, 'YYYY-MM-DD').isBusinessDay()) {
+    res.redirect(
+      url.format({
+        pathname: "/",
+        query: {
+          holiday: true,
         },
       })
     );
