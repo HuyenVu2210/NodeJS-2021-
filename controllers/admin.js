@@ -237,8 +237,56 @@ exports.getTimesheet = (req, res, next) => {
         staff: req.staff,
         docTitle: 'Tra cứu giờ làm',
         path: "/timesheet",
-        timesheet: timesheet.timesheet,
+        timesheet : timesheet.timesheet,
         months: result,
+        noInfo: false
+      });
+    } else {
+      res.redirect(
+        url.format({
+          pathname: "/",
+          query: {
+            noTimesheet: true,
+          },
+        })
+      );
+    }
+  });
+};
+
+// post timesheet
+exports.postTimesheet = (req, res, next) => {
+  const date = req.body.date;
+  console.log(date);
+  Timesheet.find({ staffId: req.staff._id }).then((t) => {
+    if (t.length > 0) {
+      const timesheet = t[0];
+
+      // get the array of months & values
+      let result = timesheet.timesheet.reduce(function (t, a) {
+        t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+        t[a._id.slice(5, 7)].push(a);
+        return t;
+      }, Object.create(null));
+
+      // sort timesheet by date desc
+      timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
+
+      // return only search results not whole timesheet.timesheet
+      let searchItem;
+      if (date && date !== '') {
+        searchItem = timesheet.timesheet.filter(t => {
+          return t._id.slice(0,10) === date;
+        })
+      };
+
+      res.render("timesheet", {
+        staff: req.staff,
+        docTitle: 'Tra cứu giờ làm',
+        path: "/timesheet",
+        timesheet: searchItem.length > 0 ? searchItem : [],
+        months: result,
+        noInfo: searchItem.length > 0 ? false: true
       });
     } else {
       res.redirect(

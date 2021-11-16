@@ -16,8 +16,9 @@ router.get('/', adminController.getCheckIn);
 
 router.post('/', adminController.postCheckIn);
 
-// get timesheet
+// get - post timesheet
 router.get('/timesheet', adminController.getTimesheet);
+router.post('/timesheet', adminController.postTimesheet);
 
 // get - post covid info
 router.get('/vaccine', adminController.getVaccine);

@@ -17,36 +17,57 @@
                 </div>
                 <div class="container">
                     <div>
-                        <% timesheet.forEach(t=> { %>
-                            <div class="card">
 
-                                <span class="timesheet-span">Ngày làm việc: <%= t._id.slice(0,10) %></span>
-                                <span class="timesheet-span">Tổng số giờ làm: <%= t.totalHours %></span>
-                                <span class="timesheet-span">Overtime: <%= t.overTime %></span>
-
-                                <hr>
-                                <p>Các phiên điểm danh: </p>
-                                <ul class="checkin-info-list">
-                                    <% t.checkin.forEach(checkin=> { %>
-                                        <li>
-                                            <span>Bắt đầu:
-                                                <%= checkin.start.getHours() %>:<%=
-                                                        (checkin.start.getMinutes()<10?'0':'') +
-                                                        checkin.start.getMinutes() %>
-                                            </span>
-                                            <span>Kết thúc:
-                                                <%= checkin.end.getHours() %>:<%= (checkin.end.getMinutes()<10?'0':'') +
-                                                        checkin.end.getMinutes() %>
-                                            </span>
-                                            <span>Nơi làm việc:
-                                                <%= checkin.workplace==='home' ? 'Nhà' :
-                                                    checkin.workplace==='customer_company' ? 'Khách hàng' : 'Công ty' %>
-                                            </span>
-                                        </li>
-                                        <% }) %>
-                                </ul>
+                        <form class="product-form" action="/timesheet" method="POST">
+                            <div class="form-control">
+                                <label for="date"><b>Chọn ngày muốn xem: </b></label>
+                                <input type="date" name="date" id="date">
                             </div>
-                            <% }) %>
+                            <div class="centered">
+                                <button class="btn" type="submit">Tìm</button>
+                            </div>
+                        </form>
+
+                        <div class="space-div"></div>
+
+                        <% if (noInfo) { %>
+                            <p class="centered"><i class="warning">Không có thông tin timesheet</i></p>
+                            <% } else { %>
+                                <div></div>
+                                <% } %>
+
+                                    <% timesheet.forEach(t=> { %>
+                                        <div class="card">
+
+                                            <span class="timesheet-span">Ngày làm việc: <%= t._id.slice(0,10) %></span>
+                                            <span class="timesheet-span">Tổng số giờ làm: <%= t.totalHours %></span>
+                                            <span class="timesheet-span">Overtime: <%= t.overTime %></span>
+
+                                            <hr>
+                                            <p>Các phiên điểm danh: </p>
+                                            <ul class="checkin-info-list">
+                                                <% t.checkin.forEach(checkin=> { %>
+                                                    <li>
+                                                        <span>Bắt đầu:
+                                                            <%= checkin.start.getHours() %>:<%=
+                                                                    (checkin.start.getMinutes()<10?'0':'') +
+                                                                    checkin.start.getMinutes() %>
+                                                        </span>
+                                                        <span>Kết thúc:
+                                                            <%= checkin.end.getHours() %>:<%=
+                                                                    (checkin.end.getMinutes()<10?'0':'') +
+                                                                    checkin.end.getMinutes() %>
+                                                        </span>
+                                                        <span>Nơi làm việc:
+                                                            <%= checkin.workplace==='home' ? 'Nhà' :
+                                                                checkin.workplace==='customer_company' ? 'Khách hàng'
+                                                                : 'Công ty' %>
+                                                        </span>
+                                                    </li>
+                                                    <% }) %>
+                                            </ul>
+                                        </div>
+                                        <% }) %>
                     </div>
                 </div>
 
