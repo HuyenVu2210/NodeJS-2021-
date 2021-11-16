@@ -447,9 +447,9 @@ exports.getSalary = (req, res, next) => {
         // get the array of business day
         businessDay = moment("2021-" + month + "-01", "YYYY-MM-DD")
           .monthBusinessDays()
-          .slice(1)
+          // .slice(1)
           .map((m) => {
-            return m.toDate().toISOString().slice(0, 10);
+            return m.toString().slice(0, 10);
           });
   
         // find the total overtime
@@ -472,6 +472,7 @@ exports.getSalary = (req, res, next) => {
   
           // create sum for undertime
           let underTime = 0;
+          console.log(businessDay.length);
           businessDay.forEach((bd) => {
             underTime = underTime + 8;
             workingDays.forEach((wd) => {
