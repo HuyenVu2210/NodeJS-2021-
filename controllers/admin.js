@@ -341,6 +341,7 @@ exports.postVaccine = (req, res, next) => {
 exports.postDayoff = (req, res, next) => {
   const reqdayoff = req.body.dayoff + "T00:00:00.000+00:00";
   const houroff = Math.round(req.body.houroff * 100) / 100;
+  const reason = req.body.reason;
 
   if (req.staff.annualLeave - houroff < 0) {
     res.redirect(
@@ -370,7 +371,9 @@ exports.postDayoff = (req, res, next) => {
           existingHoursOff + houroff < 8
             ? existingHoursOff + houroff
             : existingHoursOff;
+
         existingDayoff.totalHoursOff = totalHoursOff;
+        existingDayoff.reason = reason === '' ? '' : reason;
 
         const cannot = totalHoursOff !== existingHoursOff + houroff;
 
@@ -400,6 +403,7 @@ exports.postDayoff = (req, res, next) => {
             date: reqdayoff,
             month: month,
             totalHoursOff: houroff,
+            reason: reason === '' ? '' : reason
           });
           newDayoff.save().then((results) => {
             req.staff.annualLeave = req.staff.annualLeave - houroff;

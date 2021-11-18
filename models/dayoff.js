@@ -10,6 +10,9 @@ const dayoffSchema = new Schema({
   date: {
     type: Date,
   },
+  reason: {
+    type: String,
+  },
   month: {
     type: Number,
   },
