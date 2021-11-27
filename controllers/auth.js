@@ -18,21 +18,6 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.getSignup = (req, res, next) => {
-  let errorMessage = req.flash('error');
-  if (errorMessage.length > 0) {
-    errorMessage = errorMessage[0]
-  } else {
-    errorMessage = null
-  };
-  res.render("auth/signup", {
-    path: "/signup",
-    docTitle: "Signup",
-    isAuthenticated: false,
-    errorMessage: errorMessage
-  });
-};
-
 exports.postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -58,36 +43,6 @@ exports.postLogin = (req, res, next) => {
       });
     })
     .catch((err) => console.log(err));
-};
-
-exports.postSignup = (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  const confirmPassword = req.body.confirmPassword;
-
-  Staff.findOne({ email: email })
-    .then((staffDoc) => {
-      if (staffDoc) {
-        req.flash('error', 'Email already existed');
-        return res.redirect("/signup");
-      }
-
-      return bcrypt.hash(password, 12).then((hashedPassword) => {
-        const staff = new Staff({
-          email: email,
-          password: hashedPassword,
-          cart: { items: [] },
-        });
-
-        return staff.save();
-      });
-    })
-    .then((results) => {
-      res.redirect("/login");
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 };
 
 exports.postLogout = (req, res, next) => {
