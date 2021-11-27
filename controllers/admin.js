@@ -34,6 +34,7 @@ exports.getEditStaff = (req, res, next) => {
     staff: Staff,
     docTitle: Staff.name,
     path: "/edit-staff",
+    isAuthenticated: false
   });
 };
 
@@ -78,6 +79,7 @@ exports.getCheckIn = (req, res, next) => {
         overLeave: overLeave,
         checkin: Checkin,
         holiday: holiday,
+        isAuthenticated: false
       });
     })
     .catch((err) => {
@@ -239,7 +241,8 @@ exports.getTimesheet = (req, res, next) => {
         path: "/timesheet",
         timesheet : timesheet.timesheet,
         months: result,
-        noInfo: false
+        noInfo: false,
+        isAuthenticated: false
       });
     } else {
       res.redirect(
@@ -287,7 +290,8 @@ exports.postTimesheet = (req, res, next) => {
           path: "/timesheet",
           timesheet: searchItem.length > 0 ? searchItem : [],
           months: result,
-          noInfo: searchItem.length > 0 ? false: true
+          noInfo: searchItem.length > 0 ? false: true,
+          isAuthenticated: false
         });
       } else {
         res.redirect(
@@ -320,7 +324,8 @@ exports.postTimesheet = (req, res, next) => {
           path: "/timesheet",
           timesheet : timesheet.timesheet,
           months: result,
-          noInfo: false
+          noInfo: false,
+          isAuthenticated: false
         });
       })
   }
@@ -523,6 +528,7 @@ exports.getSalary = (req, res, next) => {
             underTime: Math.round(underTime * 100) / 100,
             overTime: overtime,
             month: month,
+            isAuthenticated: false
           });
         });
        } else {
