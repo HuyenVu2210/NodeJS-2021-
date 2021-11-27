@@ -19,7 +19,7 @@ moment.updateLocale("vn", {
 
 // show staff info /
 exports.getStaffDetail = (req, res, next) => {
-  const Staff = req.staff;
+  const Staff = req.session.staff;
   res.render("staff-detail", {
     staff: Staff,
     docTitle: Staff.name,
@@ -29,19 +29,19 @@ exports.getStaffDetail = (req, res, next) => {
 
 // get edit page /edit-staff
 exports.getEditStaff = (req, res, next) => {
-  const Staff = req.staff;
+  const Staff = req.session.staff;
   res.render("edit-staff", {
     staff: Staff,
     docTitle: Staff.name,
     path: "/edit-staff",
-    isAuthenticated: false
+    isAuthenticated: req.session.isLoggedIn
   });
 };
 
 // post edit /edit-staff
 exports.postEditStaff = (req, res, next) => {
   const image = req.body.image;
-  const Staff = req.staff;
+  const Staff = req.session.staff;
   Staff.image = image;
   Staff.save()
     .then((results) => {
@@ -54,14 +54,14 @@ exports.postEditStaff = (req, res, next) => {
 
 // get check in
 exports.getCheckIn = (req, res, next) => {
-  const Staff = req.staff;
+  const Staff = req.session.staff;
   let isCheckedIn = false;
   let cannot = req.query.cannot;
   let noTimesheet = req.query.noTimesheet;
   let overLeave = req.query.overLeave;
   let holiday = req.query.holiday;
 
-  Checkin.find({ staffId: req.staff._id, end: null })
+  Checkin.find({ staffId: Staff._id, end: null })
     .then((checkin) => {
       let Checkin;
       if (checkin.length > 0) {
@@ -79,7 +79,7 @@ exports.getCheckIn = (req, res, next) => {
         overLeave: overLeave,
         checkin: Checkin,
         holiday: holiday,
-        isAuthenticated: false
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch((err) => {
@@ -89,7 +89,7 @@ exports.getCheckIn = (req, res, next) => {
 
 // post checkin
 exports.postCheckIn = (req, res, next) => {
-  Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
+  Checkin.find({ staffId: req.session.staff._id, end: null }).then((c) => {
     if (c.length > 0) {
       let existingCheckin = c[0];
       const checkout_time = new Date();
@@ -107,7 +107,7 @@ exports.postCheckIn = (req, res, next) => {
         .then((results) => {
           Checkin.aggregate(
             [
-              { $match: { staffId: req.staff._id } },
+              { $match: { staffId: req.session.staff._id } },
               {
                 $group: {
                   _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
@@ -151,10 +151,10 @@ exports.postCheckIn = (req, res, next) => {
                   forRenderTimesheet = results;
 
                   // find && update timesheet for staff
-                  Timesheet.find({ staffId: req.staff._id }).then((t) => {
+                  Timesheet.find({ staffId: req.sessionstaff._id }).then((t) => {
                     // create temporary timesheet to get info
                     const timesheet = new Timesheet({
-                      staffId: req.staff._id,
+                      staffId: req.session.staff._id,
                       timesheet: [],
                     });
 
@@ -206,7 +206,7 @@ exports.postCheckIn = (req, res, next) => {
       checkin.workplace = workplace;
       checkin.start = today;
       checkin.date = date;
-      checkin.staffId = req.staff._id;
+      checkin.staffId = req.session.staff._id;
       checkin
         .save()
         .then((results) => {
@@ -221,7 +221,7 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
-  Timesheet.find({ staffId: req.staff._id }).then((t) => {
+  Timesheet.find({ staffId: req.session.staff._id }).then((t) => {
     if (t.length > 0) {
       const timesheet = t[0];
 
@@ -236,13 +236,13 @@ exports.getTimesheet = (req, res, next) => {
       timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
 
       res.render("timesheet", {
-        staff: req.staff,
+        staff: req.session.staff,
         docTitle: 'Tra cứu giờ làm',
         path: "/timesheet",
         timesheet : timesheet.timesheet,
         months: result,
         noInfo: false,
-        isAuthenticated: false
+        isAuthenticated: req.session.isLoggedIn
       });
     } else {
       res.redirect(
@@ -262,7 +262,7 @@ exports.postTimesheet = (req, res, next) => {
   const date = req.body.date;
   console.log(date);
   if (date) {
-    Timesheet.find({ staffId: req.staff._id }).then((t) => {
+    Timesheet.find({ staffId: req.session.staff._id }).then((t) => {
       if (t && t.length > 0) {
         const timesheet = t[0];
   
@@ -285,13 +285,13 @@ exports.postTimesheet = (req, res, next) => {
         };
   
         res.render("timesheet", {
-          staff: req.staff,
+          staff: req.session.staff,
           docTitle: 'Tra cứu giờ làm',
           path: "/timesheet",
           timesheet: searchItem.length > 0 ? searchItem : [],
           months: result,
           noInfo: searchItem.length > 0 ? false: true,
-          isAuthenticated: false
+          isAuthenticated: req.session.isLoggedIn
         });
       } else {
         res.redirect(
@@ -305,7 +305,7 @@ exports.postTimesheet = (req, res, next) => {
       }
     });
   } else {
-    Timesheet.find({ staffId: req.staff._id }).then((t) => {
+    Timesheet.find({ staffId: req.session.staff._id }).then((t) => {
         const timesheet = t[0];
   
         // get the array of months & values
@@ -319,13 +319,13 @@ exports.postTimesheet = (req, res, next) => {
         timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
   
         res.render("timesheet", {
-          staff: req.staff,
+          staff: req.session.staff,
           docTitle: 'Tra cứu giờ làm',
           path: "/timesheet",
           timesheet : timesheet.timesheet,
           months: result,
           noInfo: false,
-          isAuthenticated: false
+          isAuthenticated: req.session.isLoggedIn
         });
       })
   }
@@ -333,7 +333,7 @@ exports.postTimesheet = (req, res, next) => {
 
 // get covid info form
 exports.getVaccine = (req, res, next) => {
-  const Staff = req.staff;
+  const Staff = req.session.staff;
   res.render("vaccine", {
     staff: Staff,
     docTitle: 'Thông tin covid',
@@ -356,13 +356,13 @@ exports.postVaccine = (req, res, next) => {
   const v1 = { shot: shot1, date: date1 };
   const v2 = { shot: shot2, date: date2 };
 
-  req.staff.covid.tem = tem;
-  req.staff.covid.date = newDate;
-  req.staff.covid.result = result;
-  req.staff.covid.vaccine[0] = v1;
-  req.staff.covid.vaccine[1] = v2;
+  req.session.staff.covid.tem = tem;
+  req.session.staff.covid.date = newDate;
+  req.session.staff.covid.result = result;
+  req.session.staff.covid.vaccine[0] = v1;
+  req.session.staff.covid.vaccine[1] = v2;
 
-  req.staff.save().then((results) => {
+  req.session.staff.save().then((results) => {
     res.redirect("/");
   });
 };
@@ -373,7 +373,7 @@ exports.postDayoff = (req, res, next) => {
   const houroff = Math.round(req.body.houroff * 100) / 100;
   const reason = req.body.reason;
 
-  if (req.staff.annualLeave - houroff < 0) {
+  if (req.session.staff.annualLeave - houroff < 0) {
     res.redirect(
       url.format({
         pathname: "/",
@@ -393,7 +393,7 @@ exports.postDayoff = (req, res, next) => {
     );
   } else {
     // find && update or create if not existing yet
-    Dayoff.find({ staffId: req.staff._id, date: reqdayoff }).then((dayoff) => {
+    Dayoff.find({ staffId: req.session.staff._id, date: reqdayoff }).then((dayoff) => {
       if (dayoff.length > 0) {
         let existingDayoff = dayoff[0];
         let existingHoursOff = existingDayoff.totalHoursOff;
@@ -408,12 +408,12 @@ exports.postDayoff = (req, res, next) => {
         const cannot = totalHoursOff !== existingHoursOff + houroff;
 
         existingDayoff.save().then((results) => {
-          req.staff.annualLeave =
+          req.session.staff.annualLeave =
             totalHoursOff !== existingHoursOff + houroff
-              ? req.staff.annualLeave
-              : req.staff.annualLeave - totalHoursOff;
+              ? req.session.staff.annualLeave
+              : req.session.staff.annualLeave - totalHoursOff;
 
-          req.staff.save().then((results) => {
+          req.session.staff.save().then((results) => {
             res.redirect(
               url.format({
                 pathname: "/",
@@ -429,15 +429,15 @@ exports.postDayoff = (req, res, next) => {
 
         if (houroff < 8) {
           const newDayoff = new Dayoff({
-            staffId: req.staff._id,
+            staffId: req.session.staff._id,
             date: reqdayoff,
             month: month,
             totalHoursOff: houroff,
             reason: reason === '' ? '' : reason
           });
           newDayoff.save().then((results) => {
-            req.staff.annualLeave = req.staff.annualLeave - houroff;
-            req.staff.save().then((results) => {
+            req.session.staff.annualLeave = req.session.staff.annualLeave - houroff;
+            req.session.staff.save().then((results) => {
               res.redirect('/');
             });
           });
@@ -459,7 +459,7 @@ exports.postDayoff = (req, res, next) => {
 // get salary
 exports.getSalary = (req, res, next) => {
   const month = req.params.month;
-  Timesheet.find({ staffId: req.staff._id }).then((t) => {
+  Timesheet.find({ staffId: req.session.staff._id }).then((t) => {
     if (t.length > 0) {
       const timesheet = t[0];
 
@@ -522,13 +522,13 @@ exports.getSalary = (req, res, next) => {
           });
   
           res.render("salary", {
-            staff: req.staff,
+            staff: req.session.staff,
             docTitle: 'Lương tháng ' + month,
             path: "/salary",
             underTime: Math.round(underTime * 100) / 100,
             overTime: overtime,
             month: month,
-            isAuthenticated: false
+            isAuthenticated: req.session.isLoggedIn
           });
         });
        } else {

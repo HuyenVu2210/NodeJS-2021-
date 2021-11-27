@@ -27,6 +27,12 @@ const app = express();
 
 app.set("view engine", "ejs");
 
+app.use(flash());
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(path.join(__dirname, "public")));
+
 const MONGO_URI =
   "mongodb+srv://Kb3X1knoBJT4xRUR:Kb3X1knoBJT4xRUR@cluster0.6lc11.mongodb.net/StaffApp";
 const store = new mongoDbSession({
@@ -52,11 +58,9 @@ app.use((req, res, next) => {
   next()
 })
 
-app.use(flash());
-
-app.use(bodyParser.urlencoded({ extended: false }));
-
-app.use(express.static(path.join(__dirname, "public")));
+// have to place use routes befor storing staff in request
+app.use(adminRoutes);
+app.use(authRoutes);
 
 // Store staff in request
 app.use((req, res, next) => {
@@ -73,9 +77,6 @@ app.use((req, res, next) => {
       console.log(err);
     });
 });
-
-app.use(adminRoutes);
-app.use(authRoutes);
 
 app.use("/", errorsController.get404);
 

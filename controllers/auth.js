@@ -19,31 +19,31 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  Staff.findOne({ email: email })
-    .then((staff) => {
-      if (!staff) {
-        req.flash('error', 'Invalid email or password');
-        return res.redirect("/login");
-      }
-
-      bcrypt.compare(password, staff.password).then((doMatch) => {
-        if (doMatch) {
-          req.session.isLoggedIn = true;
-          req.session.staff = staff;
-          return req.session.save((err) => {
-            console.log(err);
-            res.redirect("/");
-          });
+    const email = req.body.email;
+    const password = req.body.password;
+    Staff.findOne({ email: email })
+      .then((staff) => {
+        if (!staff) {
+          req.flash('error', 'Invalid email or password');
+          return res.redirect("/login");
         }
+  
 
-        req.flash('error', 'Invalid email or password');
-        return res.redirect('/login')
-      });
-    })
-    .catch((err) => console.log(err));
-};
+          if (password === staff.password) {
+            req.session.isLoggedIn = true;
+            req.session.staff = staff;
+            return req.session.save((err) => {
+              console.log(err);
+              res.redirect("/");
+            });
+          }
+  
+          req.flash('error', 'Invalid email or password');
+          return res.redirect('/login')
+     
+      })
+      .catch((err) => console.log(err));
+  };
 
 exports.postLogout = (req, res, next) => {
   req.session.destroy((err) => {
