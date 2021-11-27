@@ -1,34 +1,36 @@
 const express = require('express');
 
-const adminController = require('../controllers/admin')
-
 const router = express.Router();
 
+const adminController = require('../controllers/admin');
+
+const isAuth = require('../middleware/is-auth');
+
 // get - get edit - post edit staff info
-router.get('/staff', adminController.getStaffDetail);
+router.get('/staff', isAuth, adminController.getStaffDetail);
 
-router.get('/edit-staff', adminController.getEditStaff);
+router.get('/edit-staff', isAuth, adminController.getEditStaff);
 
-router.post('/edit-staff', adminController.postEditStaff);
+router.post('/edit-staff', isAuth, adminController.postEditStaff);
 
 // get - post edit checkin info
-router.get('/', adminController.getCheckIn);
+router.get('/', isAuth, adminController.getCheckIn);
 
-router.post('/', adminController.postCheckIn);
+router.post('/', isAuth, adminController.postCheckIn);
 
 // get - post timesheet
-router.get('/timesheet', adminController.getTimesheet);
-router.post('/timesheet', adminController.postTimesheet);
+router.get('/timesheet', isAuth, adminController.getTimesheet);
+router.post('/timesheet', isAuth, adminController.postTimesheet);
 
 // get - post covid info
-router.get('/vaccine', adminController.getVaccine);
+router.get('/vaccine', isAuth, adminController.getVaccine);
 
-router.post('/vaccine', adminController.postVaccine);
+router.post('/vaccine', isAuth, adminController.postVaccine);
 
 // post day off
-router.post('/dayoff', adminController.postDayoff);
+router.post('/dayoff', isAuth, adminController.postDayoff);
 
 // get salary
-router.get('/salary/:month', adminController.getSalary);
+router.get('/salary/:month', isAuth, adminController.getSalary);
 
 module.exports = router;
