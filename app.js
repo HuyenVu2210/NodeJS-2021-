@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+// const multer = require("multer");
 
 const mongoose = require("mongoose");
 
@@ -26,6 +27,27 @@ const errorsController = require("./controllers/errors");
 const app = express();
 
 app.set("view engine", "ejs");
+
+// const fileStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, "images");
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+
+// const fileFilter = (req, file, cb) => {
+//   if (
+//     file.mimetype === "image/png" ||
+//     file.mimetype === "image/jpg" ||
+//     file.mimetype === "image/jpeg"
+//   ) {
+//     cb(null, true);
+//   } else {
+//     cb(null, false);
+//   }
+// };
 
 app.use(flash());
 
@@ -58,10 +80,6 @@ app.use((req, res, next) => {
   next()
 })
 
-// have to place use routes befor storing staff in request
-app.use(adminRoutes);
-app.use(authRoutes);
-
 // Store staff in request
 app.use((req, res, next) => {
   if (!req.session.staff) {
@@ -77,6 +95,11 @@ app.use((req, res, next) => {
       console.log(err);
     });
 });
+
+// have to place use routes befor storing staff in request
+app.use(adminRoutes);
+app.use(authRoutes);
+
 
 app.use("/", errorsController.get404);
 

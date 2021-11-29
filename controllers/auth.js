@@ -33,7 +33,7 @@ exports.postLogin = (req, res, next) => {
             req.session.isLoggedIn = true;
             req.session.staff = staff;
             return req.session.save((err) => {
-              console.log(err);
+              // console.log(err);
               // redirect to the previous page after login
               res.redirect(req.session.returnTo ? req.session.returnTo : '/');
             });

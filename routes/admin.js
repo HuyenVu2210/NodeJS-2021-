@@ -9,7 +9,7 @@ const isAuth = require('../middleware/is-auth');
 // get - get edit - post edit staff info
 router.get('/staff', isAuth, adminController.getStaffDetail);
 
-router.get('/edit-staff', isAuth, adminController.getEditStaff);
+router.get('/edit-staff/:staffId', isAuth, adminController.getEditStaff);
 
 router.post('/edit-staff', isAuth, adminController.postEditStaff);
 

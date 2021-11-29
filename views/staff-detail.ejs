@@ -31,7 +31,7 @@
                             <p class="card-staff-info">Số ngày nghỉ còn lại: <%= Math.round((staff.annualLeave/8) * 100)
                                     / 100 %> ngày</p>
                             <div class="centered card-staff-a">
-                                <a href="/edit-staff">Edit</a>
+                                <a href="/edit-staff/<%= staff._id %>">Edit</a>
                             </div>
                         </div>
                     </div>

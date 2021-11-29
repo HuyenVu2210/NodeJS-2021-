@@ -3,6 +3,7 @@ const url = require("url");
 const Checkin = require("../models/checkin");
 const Dayoff = require("../models/dayoff");
 const Timesheet = require("../models/timesheet");
+const Staff = require("../models/staff");
 
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
@@ -19,23 +20,39 @@ moment.updateLocale("vn", {
 
 // show staff info /
 exports.getStaffDetail = (req, res, next) => {
-  const Staff = req.session.staff;
   res.render("staff-detail", {
-    staff: Staff,
-    docTitle: Staff.name,
+    staff: req.staff,
+    docTitle: req.staff.name,
     path: "/staff",
   });
 };
 
 // get edit page /edit-staff
 exports.getEditStaff = (req, res, next) => {
-  const Staff = req.session.staff;
-  res.render("edit-staff", {
-    staff: Staff,
-    docTitle: Staff.name,
-    path: "/edit-staff",
-    isAuthenticated: req.session.isLoggedIn
-  });
+  const staffId = req.params.staffId;
+  
+  if (staffId !== req.staff._id.toString()) {
+    res.redirect('/')
+  }
+
+  Staff.findById(staffId)
+  .then(staff => {
+    if (!staff) {
+      res.redirect('/')
+    }
+
+    res.render("edit-staff", {
+      staff: req.staff,
+      docTitle: req.staff.name,
+      path: "/edit-staff",
+      isAuthenticated: req.session.isLoggedIn
+    });
+
+  })
+  .catch(err => {
+    console.log(err)
+  })
+  
 };
 
 // post edit /edit-staff
