@@ -13,7 +13,7 @@ exports.getLogin = (req, res, next) => {
     path: "/login",
     docTitle: "Login",
     isAuthenticated: false,
-    csrfToken: req.csrfToken(),
+    // csrfToken: req.csrfToken(),
     errorMessage: errorMessage
   });
 };

@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-// const multer = require("multer");
+const multer = require("multer");
 
 const mongoose = require("mongoose");
 
@@ -13,10 +13,6 @@ const flash = require('connect-flash');
 
 const path = require("path");
 
-// Routes
-const adminRoutes = require("./routes/admin");
-const authRoutes = require("./routes/auth");
-
 // staff model
 const Staff = require("./models/staff");
 
@@ -28,32 +24,34 @@ const app = express();
 
 app.set("view engine", "ejs");
 
-// const fileStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, "images");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + "-" + file.originalname);
-//   },
-// });
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
 
-// const fileFilter = (req, file, cb) => {
-//   if (
-//     file.mimetype === "image/png" ||
-//     file.mimetype === "image/jpg" ||
-//     file.mimetype === "image/jpeg"
-//   ) {
-//     cb(null, true);
-//   } else {
-//     cb(null, false);
-//   }
-// };
-
-app.use(flash());
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/images', express.static(path.join(__dirname, "images")));
 
 const MONGO_URI =
   "mongodb+srv://Kb3X1knoBJT4xRUR:Kb3X1knoBJT4xRUR@cluster0.6lc11.mongodb.net/StaffApp";
@@ -64,21 +62,27 @@ const store = new mongoDbSession({
 
 app.use(
   session({
-    secret: "my secret",
+    secret: "whatever",
     resave: false,
     saveUninitialized: false,
     store: store,
   })
 );
 
-app.use(csrf());
+// app.use(csrf());
 
 // add isLoggedIn && csrfToken to render
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken();
+//  res.locals.csrfToken = req.csrfToken();
   next()
 })
+
+app.use(flash()); 
+
+// Routes
+const adminRoutes = require("./routes/admin");
+const authRoutes = require("./routes/auth");
 
 // Store staff in request
 app.use((req, res, next) => {
@@ -88,6 +92,10 @@ app.use((req, res, next) => {
   
   Staff.findById(req.session.staff._id)
     .then((staff) => {
+      if (!staff) {
+        next();
+      }
+
       req.staff = staff;
       next();
     })
@@ -96,34 +104,26 @@ app.use((req, res, next) => {
     });
 });
 
-// have to place use routes befor storing staff in request
 app.use(adminRoutes);
 app.use(authRoutes);
 
-
+// app.get("/500", errorsController.get500);
 app.use("/", errorsController.get404);
+
+// app.use((error, req, res, next) => {
+//   res.render("500", {
+//     docTitle: "Error occurred",
+//     path: null,
+//     isAuthenticated: req.isLoggedIn,
+//   });
+// });
 
 mongoose
   .connect(
-    "mongodb+srv://Kb3X1knoBJT4xRUR:Kb3X1knoBJT4xRUR@cluster0.6lc11.mongodb.net/StaffApp?retryWrites=true&w=majority"
+    MONGO_URI
   )
   .then((results) => {
     app.listen(3000);
-    Staff.findOne() // findOne with no argument give back the first one
-      .then((staff) => {
-        if (!staff) {
-          const staff = new Staff({
-            name: "Huyen",
-            doB: "2010-10-20",
-            salaryScale: 1,
-            startDate: "2010-10-20",
-            department: "HR",
-            annualLeave: 12,
-            image: "//",
-          });
-          staff.save();
-        }
-      });
   })
   .catch((err) => {
     console.log(err);

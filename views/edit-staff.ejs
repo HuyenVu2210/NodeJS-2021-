@@ -29,10 +29,11 @@
                         </p>
                     </div>
                 </div>
-                <form class="product-form" action="/edit-staff" method="POST">
+                <form class="product-form" action="/edit-staff" method="POST" enctype="multipart/form-data">
                     <div class="form-control">
-                        <label for="image">Image URL</label>
-                        <input type="text" name="image" id="image" value="<%= staff.image %>">
+                        <label for="image">Image</label>
+                        <input type="file" name="image" id="image">
+                        <input type="hidden" name="staffId" value="<%= staff._id %>">
                     </div>
                     <button class="btn" type="submit">Update</button>
                 </form>
