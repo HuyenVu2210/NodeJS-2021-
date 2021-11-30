@@ -5,7 +5,7 @@ const Dayoff = require("../models/dayoff");
 const Timesheet = require("../models/timesheet");
 const Staff = require("../models/staff");
 
-const fileHelper = require('../util/file');
+const fileHelper = require("../util/file");
 
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
@@ -33,29 +33,27 @@ exports.getStaffDetail = (req, res, next) => {
 exports.getEditStaff = (req, res, next) => {
   const staffId = req.params.staffId;
   console.log(req.staff.image);
-  
+
   if (staffId !== req.staff._id.toString()) {
-    res.redirect('/')
+    res.redirect("/");
   }
 
   Staff.findById(staffId)
-  .then(staff => {
-    if (!staff) {
-      res.redirect('/')
-    }
+    .then((staff) => {
+      if (!staff) {
+        res.redirect("/");
+      }
 
-    res.render("edit-staff", {
-      staff: req.staff,
-      docTitle: req.staff.name,
-      path: "/edit-staff",
-      isAuthenticated: req.session.isLoggedIn,
+      res.render("edit-staff", {
+        staff: req.staff,
+        docTitle: req.staff.name,
+        path: "/edit-staff",
+        isAuthenticated: req.session.isLoggedIn,
+      });
+    })
+    .catch((err) => {
+      console.log(err);
     });
-
-  })
-  .catch(err => {
-    console.log(err)
-  })
-  
 };
 
 // post edit /edit-staff
@@ -65,22 +63,23 @@ exports.postEditStaff = (req, res, next) => {
 
   if (staffId !== req.staff._id.toString()) {
     return res.redirect("/");
-  } 
+  }
 
   if (image) {
     fileHelper.deleteFile(req.staff.image);
     req.staff.image = image.path;
   }
 
-  req.staff.save()
-  .then((results) => {
-    console.log("edited staff");
-    res.redirect("/staff");
-    // console.log(results);
-  })
-  .catch(err => {
-    console.log(err)
-  });
+  req.staff
+    .save()
+    .then((results) => {
+      console.log("edited staff");
+      res.redirect("/staff");
+      // console.log(results);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };
 
 // get check in
@@ -102,7 +101,7 @@ exports.getCheckIn = (req, res, next) => {
       }
       res.render("check-in", {
         staff: Staff,
-        docTitle: 'Điểm danh',
+        docTitle: "Điểm danh",
         path: "/",
         isCheckedIn: isCheckedIn,
         cannot: cannot,
@@ -110,7 +109,7 @@ exports.getCheckIn = (req, res, next) => {
         overLeave: overLeave,
         checkin: Checkin,
         holiday: holiday,
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn,
       });
     })
     .catch((err) => {
@@ -183,39 +182,41 @@ exports.postCheckIn = (req, res, next) => {
                   console.log(results);
 
                   // find && update timesheet for staff
-                  Timesheet.find({ staffId: req.sessionstaff._id }).then((t) => {
-                    // create temporary timesheet to get info
-                    const timesheet = new Timesheet({
-                      staffId: req.staff._id,
-                      timesheet: [],
-                    });
+                  Timesheet.find({ staffId: req.sessionstaff._id }).then(
+                    (t) => {
+                      // create temporary timesheet to get info
+                      const timesheet = new Timesheet({
+                        staffId: req.staff._id,
+                        timesheet: [],
+                      });
 
-                    // add checkin info to timesheet
-                    forRenderTimesheet.forEach((i) => {
-                      let hours =
-                        i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
-                      timesheet.timesheet.push({
-                        _id: i._id,
-                        checkin: [...i.checkin],
-                        totalHours: i.totalHours,
-                        overTime: i.overTime,
-                        hours: hours,
+                      // add checkin info to timesheet
+                      forRenderTimesheet.forEach((i) => {
+                        let hours =
+                          i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
+                        timesheet.timesheet.push({
+                          _id: i._id,
+                          checkin: [...i.checkin],
+                          totalHours: i.totalHours,
+                          overTime: i.overTime,
+                          hours: hours,
+                        });
                       });
-                    });
 
-                    // if already have a timesheet
-                    if (t.length > 0) {
-                      let existingTimesheet = t[0];
-                      existingTimesheet.timesheet = timesheet.timesheet;
-                      existingTimesheet.save().then((results) => {
-                        res.redirect("/");
-                      });
-                    } else {
-                      timesheet.save().then((results) => {
-                        res.redirect("/");
-                      });
+                      // if already have a timesheet
+                      if (t.length > 0) {
+                        let existingTimesheet = t[0];
+                        existingTimesheet.timesheet = timesheet.timesheet;
+                        existingTimesheet.save().then((results) => {
+                          res.redirect("/");
+                        });
+                      } else {
+                        timesheet.save().then((results) => {
+                          res.redirect("/");
+                        });
+                      }
                     }
-                  });
+                  );
                 });
               }
             }
@@ -254,13 +255,80 @@ exports.postCheckIn = (req, res, next) => {
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
   const ITEMS_PER_PAGE = 2;
-  console.log(req.staff.manager);
+  //  console.log(req.staff.manager);
 
   Staff.findById(req.staff.managerId)
-  .then(manager => {
-    let managerName = ''
+    .then((manager) => {
+      let managerName = "";
+      if (manager) {
+        managerName = manager.name;
+      }
+
+      Timesheet.find({ staffId: req.staff._id }).then((t) => {
+        if (t.length > 0) {
+          const timesheet = t[0];
+          const page = +req.query.page || 1;
+          const totalCheckins = timesheet.timesheet.length;
+
+          // get the array of months & values
+          let result = timesheet.timesheet.reduce(function (t, a) {
+            t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+            t[a._id.slice(5, 7)].push(a);
+            return t;
+          }, Object.create(null));
+
+          // sort timesheet by date desc
+          timesheet.timesheet.sort(
+            (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
+          );
+
+          let PagingTimesheet = timesheet.timesheet.slice(
+            (page - 1) * ITEMS_PER_PAGE,
+            (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+          );
+
+          res.render("timesheet", {
+            staff: req.staff,
+            managerName: managerName,
+            docTitle: "Tra cứu giờ làm",
+            path: "/timesheet",
+            timesheet: PagingTimesheet,
+            months: result,
+            noInfo: false,
+            isAuthenticated: req.session.isLoggedIn,
+            totalCheckins: totalCheckins,
+            currentPage: page,
+            hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
+            hasPreviousPage: page > 1,
+            nextPage: page + 1,
+            previousPage: page - 1,
+            lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+          });
+        } else {
+          res.redirect(
+            url.format({
+              pathname: "/",
+              query: {
+                noTimesheet: true,
+              },
+            })
+          );
+        }
+      });
+    })
+    .catch((err) => {
+      next(new Error(err));
+    });
+};
+
+// post timesheet
+exports.postTimesheet = (req, res, next) => {
+  const ITEMS_PER_PAGE = req.body.pageNum;
+
+  Staff.findById(req.staff.managerId).then((manager) => {
+    let managerName = "";
     if (manager) {
-      managerName = manager.name
+      managerName = manager.name;
     }
 
     Timesheet.find({ staffId: req.staff._id }).then((t) => {
@@ -268,25 +336,30 @@ exports.getTimesheet = (req, res, next) => {
         const timesheet = t[0];
         const page = +req.query.page || 1;
         const totalCheckins = timesheet.timesheet.length;
-  
+
         // get the array of months & values
         let result = timesheet.timesheet.reduce(function (t, a) {
           t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
           t[a._id.slice(5, 7)].push(a);
           return t;
         }, Object.create(null));
-  
+
         // sort timesheet by date desc
-        timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
-  
-        let PagingTimesheet = timesheet.timesheet.slice((page - 1) * ITEMS_PER_PAGE, (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE)
-  
+        timesheet.timesheet.sort(
+          (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
+        );
+
+        let PagingTimesheet = timesheet.timesheet.slice(
+          (page - 1) * ITEMS_PER_PAGE,
+          (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+        );
+
         res.render("timesheet", {
           staff: req.staff,
           managerName: managerName,
-          docTitle: 'Tra cứu giờ làm',
+          docTitle: "Tra cứu giờ làm",
           path: "/timesheet",
-          timesheet : PagingTimesheet,
+          timesheet: PagingTimesheet,
           months: result,
           noInfo: false,
           isAuthenticated: req.session.isLoggedIn,
@@ -296,60 +369,7 @@ exports.getTimesheet = (req, res, next) => {
           hasPreviousPage: page > 1,
           nextPage: page + 1,
           previousPage: page - 1,
-          lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE)
-        });
-      } else {
-        res.redirect(
-          url.format({
-            pathname: "/",
-            query: {
-              noTimesheet: true,
-            },
-          })
-        );
-      }
-    })
-  })
-    .catch(err => {
-      next(new Error(err))
-    });
-};
-
-// post timesheet
-exports.postTimesheet = (req, res, next) => {
-  const date = req.body.date;
-  console.log(date);
-  if (date) {
-    Timesheet.find({ staffId: req.staff._id }).then((t) => {
-      if (t && t.length > 0) {
-        const timesheet = t[0];
-  
-        // get the array of months & values
-        let result = timesheet.timesheet.reduce(function (t, a) {
-          t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
-          t[a._id.slice(5, 7)].push(a);
-          return t;
-        }, Object.create(null));
-  
-        // sort timesheet by date desc
-        timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
-  
-        // return only search results not whole timesheet.timesheet
-        let searchItem;
-        if (date && date !== '') {
-          searchItem = timesheet.timesheet.filter(t => {
-            return t._id.slice(0,10) === date;
-          })
-        };
-  
-        res.render("timesheet", {
-          staff: req.staff,
-          docTitle: 'Tra cứu giờ làm',
-          path: "/timesheet",
-          timesheet: searchItem.length > 0 ? searchItem : [],
-          months: result,
-          noInfo: searchItem.length > 0 ? false: true,
-          isAuthenticated: req.session.isLoggedIn
+          lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
         });
       } else {
         res.redirect(
@@ -362,31 +382,7 @@ exports.postTimesheet = (req, res, next) => {
         );
       }
     });
-  } else {
-    Timesheet.find({ staffId: req.staff._id }).then((t) => {
-        const timesheet = t[0];
-  
-        // get the array of months & values
-        let result = timesheet.timesheet.reduce(function (t, a) {
-          t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
-          t[a._id.slice(5, 7)].push(a);
-          return t;
-        }, Object.create(null));
-  
-        // sort timesheet by date desc
-        timesheet.timesheet.sort((a, b) => a._id.slice(0,10) > b._id.slice(0,10) && -1 || 1);
-  
-        res.render("timesheet", {
-          staff: req.staff,
-          docTitle: 'Tra cứu giờ làm',
-          path: "/timesheet",
-          timesheet : timesheet.timesheet,
-          months: result,
-          noInfo: false,
-          isAuthenticated: req.session.isLoggedIn
-        });
-      })
-  }
+  });
 };
 
 // get covid info form
@@ -394,7 +390,7 @@ exports.getVaccine = (req, res, next) => {
   const Staff = req.staff;
   res.render("vaccine", {
     staff: Staff,
-    docTitle: 'Thông tin covid',
+    docTitle: "Thông tin covid",
     path: "/vaccine",
   });
 };
@@ -461,7 +457,7 @@ exports.postDayoff = (req, res, next) => {
             : existingHoursOff;
 
         existingDayoff.totalHoursOff = totalHoursOff;
-        existingDayoff.reason = reason === '' ? '' : reason;
+        existingDayoff.reason = reason === "" ? "" : reason;
 
         const cannot = totalHoursOff !== existingHoursOff + houroff;
 
@@ -491,12 +487,12 @@ exports.postDayoff = (req, res, next) => {
             date: reqdayoff,
             month: month,
             totalHoursOff: houroff,
-            reason: reason === '' ? '' : reason
+            reason: reason === "" ? "" : reason,
           });
           newDayoff.save().then((results) => {
             req.staff.annualLeave = req.staff.annualLeave - houroff;
             req.staff.save().then((results) => {
-              res.redirect('/');
+              res.redirect("/");
             });
           });
         } else {
@@ -531,11 +527,11 @@ exports.getSalary = (req, res, next) => {
       const found = Object.entries(result).find(
         ([key, value]) => key === month
       );
-       if (found) {
+      if (found) {
         let overtime = 0;
         let workingDays = [];
         let businessDay;
-  
+
         // get the array of business day
         businessDay = moment("2021-" + month + "-01", "YYYY-MM-DD")
           .monthBusinessDays()
@@ -543,12 +539,12 @@ exports.getSalary = (req, res, next) => {
           .map((m) => {
             return m.toString().slice(0, 10);
           });
-  
+
         // find the total overtime
         found[1].forEach((v) => {
           overtime = overtime + v.overTime;
         });
-  
+
         found[1].forEach((v) => {
           // get array of working days in month
           let date = v._id.slice(0, 10);
@@ -558,10 +554,9 @@ exports.getSalary = (req, res, next) => {
             hours: hours,
           });
         });
-  
+
         // find the array of dayoff
         Dayoff.find({ month: month }).then((d) => {
-  
           // create sum for undertime
           let underTime = 0;
           console.log(businessDay.length);
@@ -578,19 +573,19 @@ exports.getSalary = (req, res, next) => {
               }
             });
           });
-  
+
           res.render("salary", {
             staff: req.staff,
-            docTitle: 'Lương tháng ' + month,
+            docTitle: "Lương tháng " + month,
             path: "/salary",
             underTime: Math.round(underTime * 100) / 100,
             overTime: overtime,
             month: month,
-            isAuthenticated: req.session.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn,
           });
         });
-       } else {
-         // if there is no timesheet info for that month
+      } else {
+        // if there is no timesheet info for that month
         res.redirect(
           url.format({
             pathname: "/",
@@ -599,7 +594,7 @@ exports.getSalary = (req, res, next) => {
             },
           })
         );
-       }
+      }
     } else {
       res.redirect(
         url.format({
