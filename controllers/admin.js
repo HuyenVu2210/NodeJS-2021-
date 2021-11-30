@@ -707,24 +707,32 @@ exports.postDeleteCheckin = (req, res, next) => {
   const checkinId = req.body.checkinId;
   const employeeId = req.body.employeeId;
 
-  // Checkin.findByIdAndDelete(checkinId)
-  // .then(results => {
+  Checkin.findByIdAndDelete(checkinId)
+  .then(results => {
     Timesheet.find({ staffId: employeeId })
     .then(t => {
       let timesheet = t[0];
-      const newTimesheet = timesheet.timesheet.filter((item) => {
-        return (item.checkin.indexOf(checkinId) >= 0);
-      });
+      let index1;
+      let index2;
 
-      console.log(newTimesheet)
-      // timesheet.timesheet = newTimesheet;
-      // timesheet.save()
-      // .then(results => {
-      //   res.redirect('/employeeTimesheet')
+      timesheet.timesheet.forEach((i, indexA) => {
+        i.checkin.forEach((c, indexB) => {
+          if (c._id.toString() === checkinId.toString()) {
+            index1 = indexA;
+            index2 = indexB;
+          }
+        })
       })
-    // })
-  // })
-  // .catch(err => {
-  //   next(new Error(err))
-  // })
+
+      timesheet.timesheet[index1].checkin.splice(index2, 1)
+
+      timesheet.save()
+      .then(results => {
+        res.redirect('/employeeTimesheet')
+      })
+    })
+  })
+  .catch(err => {
+    next(new Error(err))
+  })
 };
