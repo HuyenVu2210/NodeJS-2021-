@@ -3,6 +3,7 @@ exports.get404 = (req, res, next) => {
     docTitle: "Page not found",
     path: null,
     isAuthenticated: req.isLoggedIn,
+    isManager: req.staff.manager
   });
 };
 
@@ -11,5 +12,6 @@ exports.get500 = (req, res, next) => {
     docTitle: "Error occurred",
     path: null,
     isAuthenticated: req.isLoggedIn,
+    isManager: req.staff.manager
   });
 };
