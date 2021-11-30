@@ -1,4 +1,4 @@
-<%- include('../includes/head.ejs') %>
+<%- include('./includes/head.ejs') %>
     <link rel="stylesheet" href="/css/product.css">
 </head>
 
@@ -9,7 +9,7 @@
         <% if (employees.length > 0) { %>
             <div class="grid">
                 <% for (let employee of employees) { %>
-                    <article class="card product-item">
+                    <article class="card product-item card-1">
                         <header class="card__header">
                             <h1 class="product__title"><%= employee.name %></h1>
                         </header>
@@ -22,9 +22,6 @@
                         </div>
                         <div class="card__actions">
                             <a href="/employeeTimesheet/<%= employee._id %>" class="btn">Details</a>
-                            <% if (isAuthenticated) { %>
-                                <%- include('../includes/add-to-cart.ejs', {product: product}) %>
-                            <% } %>
                         </div>
                     </article>
                 <% } %>

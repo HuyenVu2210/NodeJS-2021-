@@ -33,4 +33,7 @@ router.post('/dayoff', isAuth, adminController.postDayoff);
 // get salary
 router.get('/salary/:month', isAuth, adminController.getSalary);
 
+// get salary
+router.get('/employeeTimesheet', isAuth, adminController.getEmployeeTimesheet);
+
 module.exports = router;

@@ -68,6 +68,12 @@ const staffSchema = new Schema({
       type: String,
     },
   },
+  employee: [
+    {
+      type: Schema.Types.ObjectId,
+      refer: 'Staff'
+    }
+  ]
 });
 
 module.exports = mongoose.model("Staff", staffSchema);

@@ -614,3 +614,22 @@ exports.getSalary = (req, res, next) => {
     }
   });
 };
+
+// get employee list
+exports.getEmployeeTimesheet = (req, res, next) => {
+  Staff.find(
+    {
+      _id: { $in: req.staff.employee },
+    },
+    function (err, docs) {
+      res.render("employeeTimesheet", {
+        staff: req.staff,
+        docTitle: "Tra giờ của nhân viên",
+        path: "/employeeTimesheet",
+        employees: docs,
+        isAuthenticated: req.session.isLoggedIn,
+        isManager: req.staff.manager
+      });
+    }
+  );
+};
