@@ -185,7 +185,7 @@ exports.postCheckIn = (req, res, next) => {
                   console.log(results);
 
                   // find && update timesheet for staff
-                  Timesheet.find({ staffId: req.sessionstaff._id }).then(
+                  Timesheet.find({ staffId: req.staff._id }).then(
                     (t) => {
                       // create temporary timesheet to get info
                       const timesheet = new Timesheet({
@@ -699,4 +699,32 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
     .catch((err) => {
       next(new Error(err));
     });
+};
+
+
+// delete checkin 
+exports.postDeleteCheckin = (req, res, next) => {
+  const checkinId = req.body.checkinId;
+  const employeeId = req.body.employeeId;
+
+  // Checkin.findByIdAndDelete(checkinId)
+  // .then(results => {
+    Timesheet.find({ staffId: employeeId })
+    .then(t => {
+      let timesheet = t[0];
+      const newTimesheet = timesheet.timesheet.filter((item) => {
+        return (item.checkin.indexOf(checkinId) >= 0);
+      });
+
+      console.log(newTimesheet)
+      // timesheet.timesheet = newTimesheet;
+      // timesheet.save()
+      // .then(results => {
+      //   res.redirect('/employeeTimesheet')
+      })
+    // })
+  // })
+  // .catch(err => {
+  //   next(new Error(err))
+  // })
 };

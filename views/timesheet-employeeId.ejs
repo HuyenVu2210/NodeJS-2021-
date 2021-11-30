@@ -53,6 +53,11 @@
                                                                 checkin.workplace==='customer_company' ? 'Khách hàng'
                                                                 : 'Công ty' %>
                                                         </span>
+                                                        <form action="/employeeTimesheet/delete" method="POST">
+                                                            <input type="hidden" value="<%= checkin._id %>" name="checkinId" />
+                                                            <input type="hidden" value="<%= staff._id %>" name="employeeId" />
+                                                            <button class="btn" type="submit">Delete</button>
+                                                        </form>
                                                     </li>
                                                     <% }) %>
                                             </ul>

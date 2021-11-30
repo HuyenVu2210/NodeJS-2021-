@@ -14,7 +14,8 @@ exports.getLogin = (req, res, next) => {
     docTitle: "Login",
     isAuthenticated: false,
     // csrfToken: req.csrfToken(),
-    errorMessage: errorMessage
+    errorMessage: errorMessage,
+    isManager: false
   });
 };
 
