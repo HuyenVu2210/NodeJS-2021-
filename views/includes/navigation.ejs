@@ -15,6 +15,11 @@
             <li class="main-header__item">
                 <a class="<%= path === '/vaccine' ? 'active' : '' %>" href="/vaccine">Thông tin covid</a>
             </li>
+            <% if (isManager) { %> 
+                <li class="main-header__item">
+                    <a class="<%= path === '/employeeTimesheet' ? 'active' : '' %>" href="/employeeTimesheet">Giờ làm của nhân viên</a>
+                </li>    
+            <% } %>
         </ul>
         <ul class="main-header__item-list">
             <% if (!isAuthenticated) { %>
@@ -46,6 +51,11 @@
         <li class="mobile-nav__item">
             <a class="<%= path === '/vaccine' ? 'active' : '' %>" href="/vaccine">Thông tin covid</a>
         </li>
+        <% if (isManager) { %> 
+            <li class="mobile-nav__item">
+                <a class="<%= path === '/employeeTimesheet' ? 'active' : '' %>" href="/employeeTimesheet">Giờ làm của nhân viên</a>
+            </li>    
+        <% } %>
     </ul>
     <% if (!isAuthenticated) { %>
         <li class="mobile-nav__item">

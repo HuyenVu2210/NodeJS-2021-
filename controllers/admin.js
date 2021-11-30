@@ -26,6 +26,7 @@ exports.getStaffDetail = (req, res, next) => {
     staff: req.staff,
     docTitle: req.staff.name,
     path: "/staff",
+    isManager: req.staff.manager
   });
 };
 
@@ -49,6 +50,7 @@ exports.getEditStaff = (req, res, next) => {
         docTitle: req.staff.name,
         path: "/edit-staff",
         isAuthenticated: req.session.isLoggedIn,
+        isManager: req.staff.manager
       });
     })
     .catch((err) => {
@@ -110,6 +112,7 @@ exports.getCheckIn = (req, res, next) => {
         checkin: Checkin,
         holiday: holiday,
         isAuthenticated: req.session.isLoggedIn,
+        isManager: req.staff.manager
       });
     })
     .catch((err) => {
@@ -303,6 +306,7 @@ exports.getTimesheet = (req, res, next) => {
             nextPage: page + 1,
             previousPage: page - 1,
             lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+            isManager: req.staff.manager
           });
         } else {
           res.redirect(
@@ -370,6 +374,7 @@ exports.postTimesheet = (req, res, next) => {
           nextPage: page + 1,
           previousPage: page - 1,
           lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+          isManager: req.staff.manager
         });
       } else {
         res.redirect(
@@ -392,6 +397,7 @@ exports.getVaccine = (req, res, next) => {
     staff: Staff,
     docTitle: "Thông tin covid",
     path: "/vaccine",
+    isManager: req.staff.manager
   });
 };
 
@@ -582,6 +588,7 @@ exports.getSalary = (req, res, next) => {
             overTime: overtime,
             month: month,
             isAuthenticated: req.session.isLoggedIn,
+            isManager: req.staff.manager
           });
         });
       } else {

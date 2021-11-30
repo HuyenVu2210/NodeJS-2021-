@@ -42,7 +42,6 @@ const staffSchema = new Schema({
   managerId: {
     type: Schema.Types.ObjectId,
     refer: 'Staff',
-    required: true,
   },
   manager: {
     type: Boolean,
