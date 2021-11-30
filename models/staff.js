@@ -39,6 +39,15 @@ const staffSchema = new Schema({
     type: String,
     required: true,
   },
+  managerId: {
+    type: Schema.Types.ObjectId,
+    refer: 'Staff',
+    required: true,
+  },
+  manager: {
+    type: Boolean,
+    required: true,
+  },
   covid: {
     vaccine: [
       {
