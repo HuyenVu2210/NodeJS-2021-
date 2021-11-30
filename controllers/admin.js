@@ -665,11 +665,11 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
           (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
         );
 
-        res.render("timesheet", {
+        res.render("timesheet-employeeId", {
           staff: e,
           managerName: managerName,
           docTitle: "Tra cứu giờ làm",
-          path: "/timesheet-employeeId",
+          path: "/employeeTimmsheet",
           timesheet: PagingTimesheet,
           months: result,
           noInfo: false,
