@@ -633,3 +633,70 @@ exports.getEmployeeTimesheet = (req, res, next) => {
     }
   );
 };
+
+exports.getEmployeeTimesheetWithId = (req, res, next) => {
+  const ITEMS_PER_PAGE = 2;
+  const employeeId = req.params.employeeId;
+  let managerName = req.staff.name;
+
+  Staff.findById(employeeId) 
+  .then(employee => {
+    let e = employee
+    Timesheet.find({ staffId: employeeId }).then((t) => {
+      if (t.length > 0) {
+        const timesheet = t[0];
+        const page = +req.query.page || 1;
+        const totalCheckins = timesheet.timesheet.length;
+
+        // get the array of months & values
+        let result = timesheet.timesheet.reduce(function (t, a) {
+          t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+          t[a._id.slice(5, 7)].push(a);
+          return t;
+        }, Object.create(null));
+
+        // sort timesheet by date desc
+        timesheet.timesheet.sort(
+          (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
+        );
+
+        let PagingTimesheet = timesheet.timesheet.slice(
+          (page - 1) * ITEMS_PER_PAGE,
+          (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+        );
+
+        res.render("timesheet", {
+          staff: e,
+          managerName: managerName,
+          docTitle: "Tra cứu giờ làm",
+          path: "/timesheet-employeeId",
+          timesheet: PagingTimesheet,
+          months: result,
+          noInfo: false,
+          isAuthenticated: req.session.isLoggedIn,
+          totalCheckins: totalCheckins,
+          currentPage: page,
+          hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+          isManager: req.staff.manager
+        });
+      } else {
+        res.redirect(
+          url.format({
+            pathname: "/",
+            query: {
+              noTimesheet: true,
+            },
+          })
+        );
+      }
+    })
+  })
+      
+    .catch((err) => {
+      next(new Error(err));
+    });
+};

@@ -35,5 +35,6 @@ router.get('/salary/:month', isAuth, adminController.getSalary);
 
 // get salary
 router.get('/employeeTimesheet', isAuth, adminController.getEmployeeTimesheet);
+router.get('/employeeTimesheet/:employeeId', isAuth, adminController.getEmployeeTimesheetWithId);
 
 module.exports = router;
