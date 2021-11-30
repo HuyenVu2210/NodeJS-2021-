@@ -81,29 +81,6 @@ exports.postEditStaff = (req, res, next) => {
   .catch(err => {
     console.log(err)
   });
-
-  // Staff.findById(staffId)
-  //   .then((staff) => {
-  //     if (!staff) {
-  //       res.redirect('/')
-  //     }
-
-  //     if (image) {
-  //       fileHelper.deleteFile(staff.image);
-  //       staff.image = image.path;
-  //     }
-
-  //     staff.save().then((results) => {
-  //       console.log("edited staff");
-  //       res.redirect("/staff");
-  //       // console.log(results);
-  //     });
-  //   })
-  //   .catch((err) => {
-  //     const error = new Error("Error occurred.");
-  //     res.httpStatusCode = 500;
-  //     return next(error);
-  //   });
 };
 
 // get check in
@@ -203,6 +180,7 @@ exports.postCheckIn = (req, res, next) => {
 
                 Promise.all(time).then(function (results) {
                   forRenderTimesheet = results;
+                  console.log(results);
 
                   // find && update timesheet for staff
                   Timesheet.find({ staffId: req.sessionstaff._id }).then((t) => {
@@ -275,9 +253,13 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
+  const ITEMS_PER_PAGE = 2;
+  
   Timesheet.find({ staffId: req.staff._id }).then((t) => {
     if (t.length > 0) {
       const timesheet = t[0];
+      const page = +req.query.page || 1;
+      const totalCheckins = timesheet.timesheet.length;
 
       // get the array of months & values
       let result = timesheet.timesheet.reduce(function (t, a) {
@@ -296,7 +278,14 @@ exports.getTimesheet = (req, res, next) => {
         timesheet : timesheet.timesheet,
         months: result,
         noInfo: false,
-        isAuthenticated: req.session.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn,
+        totalCheckins: totalCheckins,
+        currentPage: page,
+        hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE)
       });
     } else {
       res.redirect(
