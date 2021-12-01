@@ -20,6 +20,11 @@
                     <a class="<%= path === '/employeeTimesheet' ? 'active' : '' %>" href="/employeeTimesheet">Giờ làm của nhân viên</a>
                 </li>    
             <% } %>
+            <% if (isManager) { %> 
+                <li class="main-header__item">
+                    <a class="<%= path === '/employeeVaccine' ? 'active' : '' %>" href="/employeeVaccine">Thông tin covid của nhân viên</a>
+                </li>    
+            <% } %>
         </ul>
         <ul class="main-header__item-list">
             <% if (!isAuthenticated) { %>
@@ -54,6 +59,11 @@
         <% if (isManager) { %> 
             <li class="mobile-nav__item">
                 <a class="<%= path === '/employeeTimesheet' ? 'active' : '' %>" href="/employeeTimesheet">Giờ làm của nhân viên</a>
+            </li>    
+        <% } %>
+        <% if (isManager) { %> 
+            <li class="mobile-nav__item">
+                <a class="<%= path === '/employeeVaccine' ? 'active' : '' %>" href="/employeeVaccine">Thông tin covid của nhân viên</a>
             </li>    
         <% } %>
     </ul>

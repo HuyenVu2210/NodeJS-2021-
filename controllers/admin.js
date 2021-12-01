@@ -759,3 +759,47 @@ exports.postDeleteCheckin = (req, res, next) => {
     next(new Error(err))
   })
 };
+
+// get employee list
+exports.getEmployeeVaccine = (req, res, next) => {
+  Staff.find(
+    {
+      _id: { $in: req.staff.employee },
+    },
+    function (err, docs) {
+      res.render("employeeVaccine", {
+        staff: req.staff,
+        docTitle: "Thông tin covid của nhân viên",
+        path: "/employeeVaccine",
+        employees: docs,
+        isAuthenticated: req.session.isLoggedIn,
+        isManager: req.staff.manager
+      });
+    }
+  );
+};
+
+exports.getEmployeeVaccineWithId = (req, res, next) => {
+  const employeeId = req.params.employeeId;
+  console.log(employeeId)
+  Staff.findById(employeeId)
+  .then(employee => {
+    if (!employee) {
+      return res.redirect('/')
+    }
+
+    if (employee.managerId.toString() !== req.staff._id.toString()) {
+      return res.redirect('/')
+    } 
+
+    res.render("employeeVaccineWithId", {
+      staff: employee,
+      docTitle: "Thông tin covid của nhân viên",
+      path: "/employeeVaccine",
+      isManager: req.staff.manager
+    });
+  })
+  .catch(err => {
+    next(new Error(err))
+  })
+};

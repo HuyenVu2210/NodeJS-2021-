@@ -33,11 +33,15 @@ router.post('/dayoff', isAuth, adminController.postDayoff);
 // get salary
 router.get('/salary/:month', isAuth, adminController.getSalary);
 
-// get salary
+// get employee timesheet
 router.get('/employeeTimesheet', isAuth, adminController.getEmployeeTimesheet);
 router.get('/employeeTimesheet/:employeeId', isAuth, adminController.getEmployeeTimesheetWithId);
 
 // delete checkin 
 router.post('/employeeTimesheet/delete', isAuth, adminController.postDeleteCheckin);
+
+// get employee covid info
+router.get('/employeeVaccine', isAuth, adminController.getEmployeeVaccine);
+router.get('/employeeVaccine/:employeeId', isAuth, adminController.getEmployeeVaccineWithId);
 
 module.exports = router;
