@@ -39,6 +39,9 @@ router.get('/salary/:month', isAuth, adminController.getSalary);
 router.get('/employeeTimesheet', isAuth, adminController.getEmployeeTimesheet);
 router.get('/employeeTimesheet/:employeeId', isAuth, adminController.getEmployeeTimesheetWithId);
 
+// get timesheet by month
+router.post('/employeeTimesheet/month', isAuth, adminController.postEmployeeTimesheetWithId);
+
 // delete checkin 
 router.post('/employeeTimesheet/delete', isAuth, adminController.postDeleteCheckin);
 

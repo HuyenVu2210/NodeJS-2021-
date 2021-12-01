@@ -716,6 +716,107 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
     });
 };
 
+exports.getEmployeeTimesheet = (req, res, next) => {
+  Staff.find(
+    {
+      _id: { $in: req.staff.employee },
+    },
+    function (err, docs) {
+      res.render("employeeTimesheet", {
+        staff: req.staff,
+        docTitle: "Tra giờ của nhân viên",
+        path: "/employeeTimesheet",
+        employees: docs,
+        isAuthenticated: req.session.isLoggedIn,
+        isManager: req.staff.manager
+      });
+    }
+  );
+};
+
+
+// get timesheet by month
+exports.postEmployeeTimesheetWithId = (req, res, next) => {
+  const ITEMS_PER_PAGE = 2;
+  const employeeId = req.body.staffId;
+  const managerName = req.staff.name;
+  const month = req.body.month;
+
+  Staff.findById(employeeId) 
+  .then(employee => {
+    let e = employee;
+    Timesheet.find({ staffId: employeeId }).then((t) => {
+      if (t.length > 0) {
+        const timesheet = t[0];
+        const page = +req.query.page || 1;
+        const totalCheckins = timesheet.timesheet.length;
+
+        // get the array of months & values
+        let result = timesheet.timesheet.reduce(function (t, a) {
+          t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+          t[a._id.slice(5, 7)].push(a);
+          return t;
+        }, Object.create(null));
+
+        const found = Object.entries(result).find(
+          ([key, value]) => key === month
+        );
+
+        if (!found) {
+          return res.redirect('/')
+        }
+
+        let mTimesheet;
+        for (const [key, value] of Object.entries(found)) {
+          mTimesheet = value;
+        }
+        //console.log(mTimesheet);
+        // sort timesheet by date desc
+        mTimesheet.sort(
+          (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
+        );
+
+        let PagingTimesheet = mTimesheet.slice(
+          (page - 1) * ITEMS_PER_PAGE,
+          (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+        );
+
+        res.render("timesheet-employeeId", {
+          staff: e,
+          managerName: managerName,
+          docTitle: "Tra cứu giờ làm",
+          path: "/employeeTimmsheet",
+          timesheet: PagingTimesheet,
+          months: result,
+          noInfo: false,
+          isAuthenticated: req.session.isLoggedIn,
+          totalCheckins: totalCheckins,
+          currentPage: page,
+          hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+          isManager: req.staff.manager
+        });
+      } else {
+        res.redirect(
+          url.format({
+            pathname: "/",
+            query: {
+              noTimesheet: true,
+            },
+          })
+        );
+      }
+    })
+  })
+      
+    .catch((err) => {
+      next(new Error(err));
+    });
+};
+
 
 // delete checkin 
 exports.postDeleteCheckin = (req, res, next) => {

@@ -14,8 +14,27 @@
                     <div class="image">
                         <img src="/<%= staff.image %>" alt="<%= staff.name %>">
                     </div>
-                    <p>Manager: <%= managerName %></p>
+                    <p>Manager: <%= managerName %>
+                    </p>
                 </div>
+
+                <div class="centered">
+                    <b>Chọn tháng</b>
+
+
+                    <form action="/employeeTimesheet/month" method="POST">
+                        <select name="month" id="month">
+                            <% for (const [key, value] of Object.entries(months)) { %>
+                                <option value="<%= key %>"><%= key %></option>
+                            <% } %>
+                        </select>
+                        <input type="hidden" name="staffId" value="<%= staff._id %>">
+                        <button type="submit">Xem</button>
+                    </form>
+                    <span>,</span>
+
+                </div>
+
                 <div class="container">
                     <div>
                         <div class="space-div"></div>
@@ -54,8 +73,10 @@
                                                                 : 'Công ty' %>
                                                         </span>
                                                         <form action="/employeeTimesheet/delete" method="POST">
-                                                            <input type="hidden" value="<%= checkin._id %>" name="checkinId" />
-                                                            <input type="hidden" value="<%= staff._id %>" name="employeeId" />
+                                                            <input type="hidden" value="<%= checkin._id %>"
+                                                                name="checkinId" />
+                                                            <input type="hidden" value="<%= staff._id %>"
+                                                                name="employeeId" />
                                                             <button class="btn" type="submit">Delete</button>
                                                         </form>
                                                     </li>
@@ -64,7 +85,9 @@
                                         </div>
                                         <% }) %>
 
-                                        <%- include('./includes/pagination.ejs', {currentPage: currentPage, nextPage: nextPage, previousPage: previousPage, lastPage: lastPage, hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
+                                            <%- include('./includes/pagination.ejs', {currentPage: currentPage,
+                                                nextPage: nextPage, previousPage: previousPage, lastPage: lastPage,
+                                                hasNextPage: hasNextPage, hasPreviousPage: hasPreviousPage}) %>
                     </div>
                 </div>
 
