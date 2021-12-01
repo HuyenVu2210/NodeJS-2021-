@@ -1,4 +1,6 @@
 <%- include('./includes/head.ejs') %>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+
     <link rel="stylesheet" href="/css/product.css">
     <link rel="stylesheet" href="/css/forms.css">
     </head>
@@ -8,11 +10,14 @@
             <main>
                 <div class="centered">
                     <h1>
-                        Đăng ký thông tin covid cho <span><%= staff.name %></span>
+                        Thông tin covid cua <span><%= staff.name %></span>
                     </h1>
                     <hr>
                     <div class="image">
                         <img src="/<%= staff.image %>" alt="<%= staff.name %>">
+                    </div>
+                    <div>
+                        <a href="/employeeVaccine/pdf/<%= staff._id %>">Xuất PDF</a>
                     </div>
                 </div>
                 <form class="product-form" action="/vaccine" method="POST">

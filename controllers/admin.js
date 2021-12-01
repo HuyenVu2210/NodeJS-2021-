@@ -7,6 +7,10 @@ const Staff = require("../models/staff");
 
 const fileHelper = require("../util/file");
 
+const fs = require("fs");
+const path = require("path");
+const pdfDocument = require("pdfkit");
+
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
 var moment = require("moment-business-days");
@@ -625,6 +629,7 @@ exports.getSalary = (req, res, next) => {
   });
 };
 
+//////////////////////////////////////////////////////////////////////////////////////////////
 // get employee list
 exports.getEmployeeTimesheet = (req, res, next) => {
   Staff.find(
@@ -781,7 +786,6 @@ exports.getEmployeeVaccine = (req, res, next) => {
 
 exports.getEmployeeVaccineWithId = (req, res, next) => {
   const employeeId = req.params.employeeId;
-  console.log(employeeId)
   Staff.findById(employeeId)
   .then(employee => {
     if (!employee) {
@@ -802,4 +806,61 @@ exports.getEmployeeVaccineWithId = (req, res, next) => {
   .catch(err => {
     next(new Error(err))
   })
+};
+
+exports.getVaccinePdf = (req, res, next) => {
+  const employeeId = req.params.employeeId;
+
+  Staff.findById(employeeId)
+    .then((staff) => {
+      if (!staff) {
+        return next(new Error("No staff"));
+      }
+      if (staff.managerId.toString() !== req.staff._id.toString()) {
+        return next(new Error("Unauthorized"));
+      }
+
+      const pdfName = "VaccineInfo-" + staff.name + ".pdf";
+      const pdfPath = path.join("data", "pdf", pdfName);
+
+      
+      const pdfDoc = new pdfDocument();
+
+      pdfDoc.font('public/font/VAVOB.TTF');
+
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        'inline; filename="' + pdfName + '"'
+      );
+
+      const result = staff.covid.result ? staff.covid.result : 'N/a';
+      const tem = staff.covid.tem ? staff.covid.tem : 'N/a';
+      const vaccine1 = staff.covid.vaccine[0] ? staff.covid.vaccine[0]['shot'] : 'N/a';
+      const date1 = staff.covid.vaccine[0] ? staff.covid.vaccine[0]['date'].toISOString().slice(0,10) : 'N/a';
+      const vaccine2 = staff.covid.vaccine[1] ? staff.covid.vaccine[1]['shot'] : 'N/a';
+      const date2 = staff.covid.vaccine[1] ? staff.covid.vaccine[1]['date'].toISOString().slice(0,10) : 'N/a';
+
+      pdfDoc.pipe(fs.createWriteStream(pdfPath));
+      pdfDoc.pipe(res);
+
+      pdfDoc.fontSize(24).text("Thông tin vaccine", {
+        underline: true,
+      });
+      pdfDoc.text("----------------------");
+
+      pdfDoc.fontSize(18).text('Kết quả xét nghiệm: ' + result);
+      pdfDoc.fontSize(18).text('Nhiệt độ: ' + tem);
+      pdfDoc.fontSize(18).text('Loại vaccine mũi 1: ' + vaccine1);
+      pdfDoc.fontSize(18).text('Ngày tiêm mũi 1: ' + date1);
+      pdfDoc.fontSize(18).text('Loại vaccine mũi 2: ' + vaccine2);
+      pdfDoc.fontSize(18).text('Ngày tiêm mũi 2: ' + date2);
+
+      pdfDoc.text("-------");
+
+      pdfDoc.end();
+    })
+    .catch((err) => {
+      return next(err);
+    });
 };
