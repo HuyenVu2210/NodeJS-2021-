@@ -152,93 +152,7 @@ exports.postCheckIn = (req, res, next) => {
       existingCheckin
         .save()
         .then((results) => {
-          Checkin.aggregate(
-            [
-              { $match: { staffId: req.staff._id } },
-              {
-                $group: {
-                  _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
-                  totalHours: {
-                    $sum: "$hour",
-                  },
-                },
-              },
-              { $sort: { _id: -1 } },
-            ],
-            function (err, results) {
-              if (err) {
-                console.log(err);
-              } else {
-                let forRenderTimesheet;
-                time = results.map((i) => {
-                  const date = i._id + "T00:00:00.000+00:00";
-                  let totalHours, overTime;
-
-                  // check whether the date is business day => if business day then all is overTime
-                  if (moment(i._id, "YYYY-MM-DD").isBusinessDay()) {
-                    totalHours = i.totalHours;
-                    overTime = totalHours > 8 ? totalHours - 8 : 0;
-                  } else {
-                    totalHours = 0;
-                    overTime = i.totalHours;
-                  }
-
-                  return Checkin.find({ date: date }) // have to return in able to handle as a promise
-                    .then((checkin) => {
-                      return {
-                        _id: date,
-                        checkin: checkin,
-                        totalHours: totalHours,
-                        overTime: overTime,
-                      };
-                    });
-                });
-
-                Promise.all(time).then(function (r) {
-                  forRenderTimesheet = r;
-
-                  // find && update timesheet for staff
-                  Timesheet.find({ staffId: req.staff._id }).then(
-                    (t) => {
-                      // create temporary timesheet to get info
-                      const timesheet = new Timesheet({
-                        staffId: req.staff._id,
-                        timesheet: [],
-                      });
-                      
-                      // add checkin info to timesheet
-                      forRenderTimesheet.forEach((i) => {
-                        let hours =
-                          i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
-
-                        timesheet.timesheet.push({
-                          _id: i._id,
-                          checkin: [...i.checkin],
-                          totalHours: i.totalHours,
-                          overTime: i.overTime,
-                          hours: hours,
-                        });
-                      });
-                      // console.log(forRenderTimesheet);
-
-                      // if already have a timesheet
-                      if (t.length > 0) {
-                        let existingTimesheet = t[0];
-                        existingTimesheet.timesheet = timesheet.timesheet;
-                        existingTimesheet.save().then((results) => {
-                          res.redirect("/");
-                        });
-                      } else {
-                        timesheet.save().then((results) => {
-                          res.redirect("/");
-                        });
-                      }
-                    }
-                  );
-                });
-              }
-            }
-          );
+          res.redirect('/')
         })
         .catch((err) => {
           console.log("post checkin failed: " + err);
@@ -277,59 +191,131 @@ exports.getTimesheet = (req, res, next) => {
         managerName = manager.name;
       }
 
-      Timesheet.find({ staffId: req.staff._id }).then((t) => {
-        if (t.length > 0) {
-          const timesheet = t[0];
-          const page = +req.query.page || 1;
-          const totalCheckins = timesheet.timesheet.length;
-
-          // get the array of months & values
-          let result = timesheet.timesheet.reduce(function (t, a) {
-            t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
-            t[a._id.slice(5, 7)].push(a);
-            return t;
-          }, Object.create(null));
-
-          // sort timesheet by date desc
-          timesheet.timesheet.sort(
-            (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
-          );
-
-          let PagingTimesheet = timesheet.timesheet.slice(
-            (page - 1) * ITEMS_PER_PAGE,
-            (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
-          );
-
-          res.render("timesheet", {
-            staff: req.staff,
-            managerName: managerName,
-            docTitle: "Tra cứu giờ làm",
-            path: "/timesheet",
-            timesheet: PagingTimesheet,
-            months: result,
-            noInfo: false,
-            isAuthenticated: req.session.isLoggedIn,
-            totalCheckins: totalCheckins,
-            currentPage: page,
-            hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
-            hasPreviousPage: page > 1,
-            nextPage: page + 1,
-            previousPage: page - 1,
-            lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
-            isManager: req.staff.manager,
-            notMonth: true
-          });
-        } else {
-          res.redirect(
-            url.format({
-              pathname: "/",
-              query: {
-                noTimesheet: true,
+      Checkin.aggregate(
+        [
+          { $match: { staffId: req.staff._id } },
+          {
+            $group: {
+              _id: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+              totalHours: {
+                $sum: "$hour",
               },
-            })
-          );
+            },
+          },
+          { $sort: { _id: -1 } },
+        ],
+        function (err, results) {
+          if (err) {
+            console.log(err);
+          } else {
+            let forRenderTimesheet;
+            time = results.map((i) => {
+              const date = i._id + "T00:00:00.000+00:00";
+              let totalHours, overTime;
+
+              // check whether the date is business day => if business day then all is overTime
+              if (moment(i._id, "YYYY-MM-DD").isBusinessDay()) {
+                totalHours = i.totalHours;
+                overTime = totalHours > 8 ? totalHours - 8 : 0;
+              } else {
+                totalHours = 0;
+                overTime = i.totalHours;
+              }
+
+              return Checkin.find({ date: date }) // have to return in able to handle as a promise
+                .then((checkin) => {
+                  return {
+                    _id: date,
+                    checkin: checkin,
+                    totalHours: totalHours,
+                    overTime: overTime,
+                  };
+                });
+            });
+
+            Promise.all(time).then(function (r) {
+              forRenderTimesheet = r;
+
+              // find && update timesheet for staff
+              Timesheet.find({ staffId: req.staff._id }).then(
+                (t) => {
+                  // create temporary timesheet to get info
+                  const timesheet = new Timesheet({
+                    staffId: req.staff._id,
+                    timesheet: [],
+                  });
+                  
+                  // add checkin info to timesheet
+                  forRenderTimesheet.forEach((i) => {
+                    let hours =
+                      i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
+
+                    timesheet.timesheet.push({
+                      _id: i._id,
+                      checkin: [...i.checkin],
+                      totalHours: i.totalHours,
+                      overTime: i.overTime,
+                      hours: hours,
+                    });
+                  });
+                  // console.log(forRenderTimesheet);
+
+                  // if already have a timesheet
+                  if (t.length > 0) {
+                    let existingTimesheet = t[0];
+                    existingTimesheet.timesheet = timesheet.timesheet;
+                    existingTimesheet.save().then((results) => {
+                      res.redirect("/");
+                    });
+                  } else {
+                    timesheet.save().then((timesheet) => {
+                      const page = +req.query.page || 1;
+                      const totalCheckins = timesheet.timesheet.length;
+
+                      // get the array of months & values
+                      let result = timesheet.timesheet.reduce(function (t, a) {
+                        t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+                        t[a._id.slice(5, 7)].push(a);
+                        return t;
+                      }, Object.create(null));
+
+                      // sort timesheet by date desc
+                      timesheet.timesheet.sort(
+                        (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
+                      );
+
+                      let PagingTimesheet = timesheet.timesheet.slice(
+                        (page - 1) * ITEMS_PER_PAGE,
+                        (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+                      );
+
+                      res.render("timesheet", {
+                        staff: req.staff,
+                        managerName: managerName,
+                        docTitle: "Tra cứu giờ làm",
+                        path: "/timesheet",
+                        timesheet: PagingTimesheet,
+                        months: result,
+                        noInfo: false,
+                        isAuthenticated: req.session.isLoggedIn,
+                        totalCheckins: totalCheckins,
+                        currentPage: page,
+                        hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
+                        hasPreviousPage: page > 1,
+                        nextPage: page + 1,
+                        previousPage: page - 1,
+                        lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+                        isManager: req.staff.manager,
+                        notMonth: true
+                      });
+                    });
+                  }
+                }
+              );
+            });
+          }
         }
-      });
+      );
     })
     .catch((err) => {
       next(new Error(err));
