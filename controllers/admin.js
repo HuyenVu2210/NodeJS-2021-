@@ -695,7 +695,7 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
     Staff.findById(employeeId)
       .then((employee) => {
         if (!employee) {
-          res.redirect('/employeeTimesheet')
+          return res.redirect('/employeeTimesheet')
         }
         const page = +req.query.page || 1;
         let e = employee;
