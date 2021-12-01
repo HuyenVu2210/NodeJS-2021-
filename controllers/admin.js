@@ -196,7 +196,6 @@ exports.postCheckIn = (req, res, next) => {
 
                 Promise.all(time).then(function (r) {
                   forRenderTimesheet = r;
-                  console.log(r);
 
                   // find && update timesheet for staff
                   Timesheet.find({ staffId: req.staff._id }).then(
@@ -247,8 +246,8 @@ exports.postCheckIn = (req, res, next) => {
     } else {
       let checkin = new Checkin();
       const workplace = req.body.workplace;
-      const today = '2021-12-02T12:18:22.180+00:00';
-      const date = today.slice(0,10);
+      const today = new Date();
+      const date = today.toISOString().slice(0,10);
 
       checkin.workplace = workplace;
       checkin.start = today;
@@ -317,7 +316,8 @@ exports.getTimesheet = (req, res, next) => {
             nextPage: page + 1,
             previousPage: page - 1,
             lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
-            isManager: req.staff.manager
+            isManager: req.staff.manager,
+            notMonth: true
           });
         } else {
           res.redirect(
@@ -385,7 +385,8 @@ exports.postTimesheet = (req, res, next) => {
           nextPage: page + 1,
           previousPage: page - 1,
           lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
-          isManager: req.staff.manager
+          isManager: req.staff.manager,
+          notMonth: true
         });
       } else {
         res.redirect(
@@ -693,7 +694,8 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
           nextPage: page + 1,
           previousPage: page - 1,
           lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
-          isManager: req.staff.manager
+          isManager: req.staff.manager,
+          notMonth: true
         });
       } else {
         res.redirect(
@@ -713,28 +715,8 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
     });
 };
 
-exports.getEmployeeTimesheet = (req, res, next) => {
-  Staff.find(
-    {
-      _id: { $in: req.staff.employee },
-    },
-    function (err, docs) {
-      res.render("employeeTimesheet", {
-        staff: req.staff,
-        docTitle: "Tra giờ của nhân viên",
-        path: "/employeeTimesheet",
-        employees: docs,
-        isAuthenticated: req.session.isLoggedIn,
-        isManager: req.staff.manager
-      });
-    }
-  );
-};
-
-
 // get timesheet by month
 exports.postEmployeeTimesheetWithId = (req, res, next) => {
-  const ITEMS_PER_PAGE = 2;
   const employeeId = req.body.staffId;
   const managerName = req.staff.name;
   const month = req.body.month;
@@ -745,8 +727,6 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
     Timesheet.find({ staffId: employeeId }).then((t) => {
       if (t.length > 0) {
         const timesheet = t[0];
-        const page = +req.query.page || 1;
-        const totalCheckins = timesheet.timesheet.length;
 
         // get the array of months & values
         let result = timesheet.timesheet.reduce(function (t, a) {
@@ -773,28 +753,17 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
           (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
         );
 
-        let PagingTimesheet = mTimesheet.slice(
-          (page - 1) * ITEMS_PER_PAGE,
-          (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
-        );
-
         res.render("timesheet-employeeId", {
           staff: e,
           managerName: managerName,
           docTitle: "Tra cứu giờ làm",
           path: "/employeeTimmsheet",
-          timesheet: PagingTimesheet,
+          timesheet: mTimesheet,
           months: result,
           noInfo: false,
           isAuthenticated: req.session.isLoggedIn,
-          totalCheckins: totalCheckins,
-          currentPage: page,
-          hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
-          hasPreviousPage: page > 1,
-          nextPage: page + 1,
-          previousPage: page - 1,
-          lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
-          isManager: req.staff.manager
+          isManager: req.staff.manager,
+          notMonth: false
         });
       } else {
         res.redirect(
