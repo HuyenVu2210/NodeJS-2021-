@@ -21,6 +21,9 @@ const checkinSchema = new Schema({
   hour: {
     type: Number,
   },
+  overTime: {
+    type: Number,
+  },
   staffId: {
     type: Schema.Types.ObjectId,
     refer: 'Staff'

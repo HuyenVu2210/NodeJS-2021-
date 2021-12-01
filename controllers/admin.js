@@ -127,6 +127,8 @@ exports.postCheckIn = (req, res, next) => {
       let existingCheckin = c[0];
       const checkout_time = new Date();
       existingCheckin.end = checkout_time;
+      let OT;
+
       let hour =
         checkout_time.getHours() +
         checkout_time.getMinutes() / 60 -
@@ -134,6 +136,14 @@ exports.postCheckIn = (req, res, next) => {
           existingCheckin.start.getMinutes() / 60);
 
       existingCheckin.hour = Math.round(hour * 100) / 100;
+
+      if (moment(existingCheckin.date.toISOString().slice(0,10), "YYYY-MM-DD").isBusinessDay()) {
+        OT = hour > 8 ? hour - 8 : 0;
+      } else {
+        OT = hour;
+      }
+
+      existingCheckin.overTime = OT;
 
       existingCheckin
         .save()
@@ -707,8 +717,8 @@ exports.postDeleteCheckin = (req, res, next) => {
   const checkinId = req.body.checkinId;
   const employeeId = req.body.employeeId;
 
-  Checkin.findByIdAndDelete(checkinId)
-  .then(results => {
+  Checkin.findById(checkinId)
+  .then(checkin => {
     Timesheet.find({ staffId: employeeId })
     .then(t => {
       let timesheet = t[0];
@@ -724,11 +734,24 @@ exports.postDeleteCheckin = (req, res, next) => {
         })
       })
 
-      timesheet.timesheet[index1].checkin.splice(index2, 1)
+      console.log(index1, index2);
+      console.log(timesheet.timesheet[index1].totalHours);
+
+
+      timesheet.timesheet[index1].checkin.splice(index2, 1);
+      if (timesheet.timesheet[index1].totalHours - checkin.hour < 0) {
+        timesheet.timesheet.splice(index1, 1)
+      } else {
+        timesheet.timesheet[index1].totalHours = timesheet.timesheet[index1].totalHours - checkin.hour;
+      // timesheet.timesheet[index1].overTime = timesheet.timesheet[index1].overTime - checkin.overTime;
+      }
 
       timesheet.save()
       .then(results => {
-        res.redirect('/employeeTimesheet')
+        Checkin.findByIdAndDelete(checkinId)
+        .then(results => {
+          res.redirect('/employeeTimesheet')
+        })
       })
     })
   })
