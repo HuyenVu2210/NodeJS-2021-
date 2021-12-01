@@ -44,6 +44,7 @@
                         <input type="date" name="date2" id="date2" value="<% if (staff.covid.vaccine[1]) { %><%= staff.covid.vaccine[1]['date'].toISOString().slice(0,10) %><% } else { %><% } %>">
                     </div>
                     <div class="centered">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <button class="btn" type="submit">Cập nhật thông tin</button>
                     </div>
                 </form>

@@ -69,12 +69,12 @@ app.use(
   })
 );
 
-// app.use(csrf());
+app.use(csrf());
 
 // add isLoggedIn && csrfToken to render
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
-//  res.locals.csrfToken = req.csrfToken();
+  res.locals.csrfToken = req.csrfToken();
   next()
 })
 

@@ -67,6 +67,7 @@ exports.getEditStaff = (req, res, next) => {
 exports.postEditStaff = (req, res, next) => {
   const image = req.file;
   const staffId = req.body.staffId;
+  console.log(req.staff._manager);
 
   if (staffId !== req.staff._id.toString()) {
     return res.redirect("/");

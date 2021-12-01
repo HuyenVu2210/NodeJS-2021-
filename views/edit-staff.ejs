@@ -33,6 +33,7 @@
                     <div class="form-control">
                         <label for="image">Image</label>
                         <input type="file" name="image" id="image">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <input type="hidden" name="staffId" value="<%= staff._id %>">
                     </div>
                     <button class="btn" type="submit">Update</button>
