@@ -32,6 +32,7 @@
                                             <option value="customer_company">Khách hàng</option>
                                         </select>
                                     </div>
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                     <div>
                                         <button class="btn" type="submit">Điểm danh</button>
                                     </div>
@@ -52,6 +53,7 @@
                                     </div>
                                     <form class="product-form" action="/" method="POST">
                                         <input type="hidden" value="checkout" name="checkout">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                         <div class="centered">
                                             <button class="btn" type="submit">Kết thúc</button>
                                         </div>
@@ -82,6 +84,7 @@
                                                     Lý do nghỉ </label>
                                                 <textarea name="reason" id="reason"></textarea>
                                             </div>
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                             <button class="btn" type="submit">Xin nghỉ</button>
                                         </form>
 
