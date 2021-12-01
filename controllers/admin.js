@@ -194,9 +194,9 @@ exports.postCheckIn = (req, res, next) => {
                     });
                 });
 
-                Promise.all(time).then(function (results) {
-                  forRenderTimesheet = results;
-                  console.log(results);
+                Promise.all(time).then(function (r) {
+                  forRenderTimesheet = r;
+                  console.log(r);
 
                   // find && update timesheet for staff
                   Timesheet.find({ staffId: req.staff._id }).then(
@@ -206,11 +206,12 @@ exports.postCheckIn = (req, res, next) => {
                         staffId: req.staff._id,
                         timesheet: [],
                       });
-
+                      
                       // add checkin info to timesheet
                       forRenderTimesheet.forEach((i) => {
                         let hours =
                           i.totalHours == 0 ? 0 : i.totalHours - i.overTime;
+
                         timesheet.timesheet.push({
                           _id: i._id,
                           checkin: [...i.checkin],
@@ -219,6 +220,7 @@ exports.postCheckIn = (req, res, next) => {
                           hours: hours,
                         });
                       });
+                      // console.log(forRenderTimesheet);
 
                       // if already have a timesheet
                       if (t.length > 0) {
@@ -245,13 +247,8 @@ exports.postCheckIn = (req, res, next) => {
     } else {
       let checkin = new Checkin();
       const workplace = req.body.workplace;
-      const today = new Date();
-      const date =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate();
+      const today = '2021-12-02T12:18:22.180+00:00';
+      const date = today.slice(0,10);
 
       checkin.workplace = workplace;
       checkin.start = today;
