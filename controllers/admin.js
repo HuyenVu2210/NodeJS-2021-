@@ -826,7 +826,7 @@ exports.getVaccinePdf = (req, res, next) => {
       
       const pdfDoc = new pdfDocument();
 
-      pdfDoc.font('public/font/VAVOB.TTF');
+      pdfDoc.font('public/font/VAGRB.TTF');
 
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
