@@ -36,6 +36,9 @@ const timesheetSchema = new Schema({
           hour: {
             type: Number,
           },
+          confirm: {
+            type: Boolean,
+          }
         },
       ],
       totalHours: {

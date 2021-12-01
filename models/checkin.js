@@ -27,6 +27,9 @@ const checkinSchema = new Schema({
   staffId: {
     type: Schema.Types.ObjectId,
     refer: 'Staff'
+  },
+  confirm: {
+    type: Boolean
   }
 });
 

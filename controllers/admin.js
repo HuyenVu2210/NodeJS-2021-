@@ -934,48 +934,61 @@ exports.getVaccinePdf = (req, res, next) => {
 
 // confirm checkin
 exports.postEmployeeTimesheetConfirm = (req, res, next) => {
-  const checkinId = req.body.checkinId;
-  const employeeId = req.body.employeeId;
+  const month = req.body.month_confirm;
+  const employeeId = req.body.staffId_confirm;
 
-  Checkin.findById(checkinId)
-  .then(checkin => {
     Timesheet.find({ staffId: employeeId })
     .then(t => {
       let timesheet = t[0];
-      let index1;
-      let index2;
 
-      timesheet.timesheet.forEach((i, indexA) => {
-        i.checkin.forEach((c, indexB) => {
-          if (c._id.toString() === checkinId.toString()) {
-            index1 = indexA;
-            index2 = indexB;
-          }
-        })
-      })
+      let result = timesheet.timesheet.reduce(function (t, a) {
+        t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+        t[a._id.slice(5, 7)].push(a);
+        return t;
+      }, Object.create(null));
 
-      console.log(index1, index2);
-      console.log(timesheet.timesheet[index1].totalHours);
+      // find the value of the selected month
+      const found = Object.entries(result).find(
+        ([key, value]) => key === month
+      );
 
+      let nTimesheet;
 
-      timesheet.timesheet[index1].checkin.splice(index2, 1);
-      if (timesheet.timesheet[index1].totalHours - checkin.hour < 0) {
-        timesheet.timesheet.splice(index1, 1)
-      } else {
-        timesheet.timesheet[index1].totalHours = timesheet.timesheet[index1].totalHours - checkin.hour;
-      // timesheet.timesheet[index1].overTime = timesheet.timesheet[index1].overTime - checkin.overTime;
+      for (const [key, value] of Object.entries(found)) {
+        nTimesheet = value;
       }
 
-      timesheet.save()
-      .then(results => {
-        Checkin.findByIdAndDelete(checkinId)
-        .then(results => {
-          res.redirect('/employeeTimesheet')
+      let updateCheckinList = [];
+      nTimesheet.forEach(nt => {
+        nt.checkin.forEach(c => {
+          updateCheckinList.push(c._id)
         })
       })
+
+      console.log(updateCheckinList);
+      Checkin.find({
+        '_id': { $in: updateCheckinList}
+      }, function(err, checkins){
+          const abc = checkins.map(checkin => {
+            checkin.confirm = true;
+            return checkin.save()
+          })
+          Promise.all(abc).then(function (r) {
+            timesheet.timesheet.forEach(t => {
+              t.checkin.forEach(c => {
+                if (updateCheckinList.includes(c._id)) {
+                  c.confirm = true
+                }
+              })
+            })
+            timesheet.save()
+            .then(results => {
+              res.redirect('/employeeTimesheet')
+            })
+          })
+      })
     })
-  })
   .catch(err => {
-    next(new Error(err))
+    console.log(err)
   })
 };
