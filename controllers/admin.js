@@ -763,7 +763,8 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
           noInfo: false,
           isAuthenticated: req.session.isLoggedIn,
           isManager: req.staff.manager,
-          notMonth: false
+          notMonth: false,
+          month: month
         });
       } else {
         res.redirect(
@@ -851,6 +852,7 @@ exports.getEmployeeVaccine = (req, res, next) => {
   );
 };
 
+// get vaccine info of employee
 exports.getEmployeeVaccineWithId = (req, res, next) => {
   const employeeId = req.params.employeeId;
   Staff.findById(employeeId)
@@ -875,6 +877,7 @@ exports.getEmployeeVaccineWithId = (req, res, next) => {
   })
 };
 
+// get pdf file of vaccine info
 exports.getVaccinePdf = (req, res, next) => {
   const employeeId = req.params.employeeId;
 
@@ -930,4 +933,52 @@ exports.getVaccinePdf = (req, res, next) => {
     .catch((err) => {
       return next(err);
     });
+};
+
+// confirm checkin
+exports.postEmployeeTimesheetConfirm = (req, res, next) => {
+  const checkinId = req.body.checkinId;
+  const employeeId = req.body.employeeId;
+
+  Checkin.findById(checkinId)
+  .then(checkin => {
+    Timesheet.find({ staffId: employeeId })
+    .then(t => {
+      let timesheet = t[0];
+      let index1;
+      let index2;
+
+      timesheet.timesheet.forEach((i, indexA) => {
+        i.checkin.forEach((c, indexB) => {
+          if (c._id.toString() === checkinId.toString()) {
+            index1 = indexA;
+            index2 = indexB;
+          }
+        })
+      })
+
+      console.log(index1, index2);
+      console.log(timesheet.timesheet[index1].totalHours);
+
+
+      timesheet.timesheet[index1].checkin.splice(index2, 1);
+      if (timesheet.timesheet[index1].totalHours - checkin.hour < 0) {
+        timesheet.timesheet.splice(index1, 1)
+      } else {
+        timesheet.timesheet[index1].totalHours = timesheet.timesheet[index1].totalHours - checkin.hour;
+      // timesheet.timesheet[index1].overTime = timesheet.timesheet[index1].overTime - checkin.overTime;
+      }
+
+      timesheet.save()
+      .then(results => {
+        Checkin.findByIdAndDelete(checkinId)
+        .then(results => {
+          res.redirect('/employeeTimesheet')
+        })
+      })
+    })
+  })
+  .catch(err => {
+    next(new Error(err))
+  })
 };

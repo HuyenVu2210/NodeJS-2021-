@@ -31,7 +31,14 @@
                         <input type="hidden" name="staffId" value="<%= staff._id %>">
                         <button type="submit">Xem</button>
                     </form>
-                    <span>,</span>
+
+                    <% if (!notMonth) { %> 
+                        <form action="/employeeTimesheet/confirm" method="POST">
+                            <input type="hidden" name="staffId_confirm" value="<%= staff._id %>">
+                            <input type="hidden" name="month_confirm" value="<%= month %>">
+                            <button type="submit">Xác nhận</button>
+                        </form>    
+                    <% } %>
 
                 </div>
 
