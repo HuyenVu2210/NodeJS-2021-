@@ -37,7 +37,6 @@ exports.getStaffDetail = (req, res, next) => {
 // get edit page /edit-staff
 exports.getEditStaff = (req, res, next) => {
   const staffId = req.params.staffId;
-  console.log(req.staff.image);
 
   if (staffId !== req.staff._id.toString()) {
     res.redirect("/");
@@ -58,7 +57,9 @@ exports.getEditStaff = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -79,12 +80,12 @@ exports.postEditStaff = (req, res, next) => {
   req.staff
     .save()
     .then((results) => {
-      console.log("edited staff");
       res.redirect("/staff");
-      // console.log(results);
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -120,7 +121,9 @@ exports.getCheckIn = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -155,7 +158,9 @@ exports.postCheckIn = (req, res, next) => {
           res.redirect('/')
         })
         .catch((err) => {
-          console.log("post checkin failed: " + err);
+          const error = new Error("Error occurred.");
+          res.httpStatusCode = 500;
+          return next(error);
         });
     } else {
       let checkin = new Checkin();
@@ -173,7 +178,9 @@ exports.postCheckIn = (req, res, next) => {
           res.redirect("/");
         })
         .catch((err) => {
-          console.log("post checkin failed: " + err);
+          const error = new Error("Error occurred.");
+          res.httpStatusCode = 500;
+          return next(error);
         });
     }
   });
@@ -182,7 +189,6 @@ exports.postCheckIn = (req, res, next) => {
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
   const ITEMS_PER_PAGE = 2;
-  //  console.log(req.staff.manager);
 
   Staff.findById(req.staff.managerId)
     .then((manager) => {
@@ -206,7 +212,9 @@ exports.getTimesheet = (req, res, next) => {
         ],
         function (err, results) {
           if (err) {
-            console.log(err);
+            const error = new Error("Error occurred.");
+            res.httpStatusCode = 500;
+            return next(error);
           } else {
             let forRenderTimesheet;
             time = results.map((i) => {
@@ -258,7 +266,6 @@ exports.getTimesheet = (req, res, next) => {
                       hours: hours,
                     });
                   });
-                  // console.log(forRenderTimesheet);
 
                   // if already have a timesheet
                   if (t.length > 0) {
@@ -356,7 +363,9 @@ exports.getTimesheet = (req, res, next) => {
       );
     })
     .catch((err) => {
-      next(new Error(err));
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -601,7 +610,6 @@ exports.getSalary = (req, res, next) => {
         Dayoff.find({ month: month }).then((d) => {
           // create sum for undertime
           let underTime = 0;
-          console.log(businessDay.length);
           businessDay.forEach((bd) => {
             underTime = underTime + 8;
             workingDays.forEach((wd) => {
@@ -735,7 +743,9 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
   })
       
     .catch((err) => {
-      next(new Error(err));
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -771,7 +781,6 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
         for (const [key, value] of Object.entries(found)) {
           mTimesheet = value;
         }
-        //console.log(mTimesheet);
         // sort timesheet by date desc
         mTimesheet.sort(
           (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
@@ -804,7 +813,9 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
   })
       
     .catch((err) => {
-      next(new Error(err));
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -850,7 +861,9 @@ exports.postDeleteCheckin = (req, res, next) => {
     })
   })
   .catch(err => {
-    next(new Error(err))
+    const error = new Error("Error occurred.");
+    res.httpStatusCode = 500;
+    return next(error);
   })
 };
 
@@ -894,7 +907,9 @@ exports.getEmployeeVaccineWithId = (req, res, next) => {
     });
   })
   .catch(err => {
-    next(new Error(err))
+    const error = new Error("Error occurred.");
+    res.httpStatusCode = 500;
+    return next(error);
   })
 };
 
@@ -905,10 +920,14 @@ exports.getVaccinePdf = (req, res, next) => {
   Staff.findById(employeeId)
     .then((staff) => {
       if (!staff) {
-        return next(new Error("No staff"));
+        const error = new Error("No staff found.");
+        res.httpStatusCode = 500;
+        return next(error);
       }
       if (staff.managerId.toString() !== req.staff._id.toString()) {
-        return next(new Error("Unauthorized"));
+        const error = new Error("Unauthorized");
+        res.httpStatusCode = 500;
+        return next(error);
       }
 
       const pdfName = "VaccineInfo-" + staff.name + ".pdf";
@@ -952,7 +971,9 @@ exports.getVaccinePdf = (req, res, next) => {
       pdfDoc.end();
     })
     .catch((err) => {
-      return next(err);
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -989,7 +1010,6 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
         })
       })
 
-      console.log(updateCheckinList);
       Checkin.find({
         '_id': { $in: updateCheckinList}
       }, function(err, checkins){
@@ -1013,6 +1033,8 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
       })
     })
   .catch(err => {
-    console.log(err)
+    const error = new Error("Error occurred.");
+    res.httpStatusCode = 500;
+    return next(error);
   })
 };

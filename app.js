@@ -107,16 +107,17 @@ app.use((req, res, next) => {
 app.use(adminRoutes);
 app.use(authRoutes);
 
-// app.get("/500", errorsController.get500);
+app.get("/500", errorsController.get500);
 app.use("/", errorsController.get404);
 
-// app.use((error, req, res, next) => {
-//   res.render("500", {
-//     docTitle: "Error occurred",
-//     path: null,
-//     isAuthenticated: req.isLoggedIn,
-//   });
-// });
+app.use((error, req, res, next) => {
+  res.render("500", {
+    docTitle: "Error occurred",
+    path: null,
+    isAuthenticated: req.isLoggedIn,
+    isManager: req.staff.manager,
+  });
+});
 
 mongoose
   .connect(
