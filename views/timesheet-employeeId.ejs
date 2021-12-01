@@ -24,9 +24,9 @@
 
                     <form action="/employeeTimesheet/month" method="POST">
                         <select name="month" id="month">
-                            <% for (const [key, value] of Object.entries(months)) { %>
-                                <option value="<%= key %>"><%= key %></option>
-                            <% } %>
+                            <% months.forEach(m => { %>
+                                <option value="<%= m %>"><%= m %></option>
+                            <% }) %>
                         </select>
                         <input type="hidden" name="staffId" value="<%= staff._id %>">
                         <button type="submit">Xem</button>

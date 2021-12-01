@@ -687,36 +687,33 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
   Staff.findById(employeeId) 
   .then(employee => {
     let e = employee
-    Timesheet.find({ staffId: employeeId }).then((t) => {
-      if (t.length > 0) {
-        const timesheet = t[0];
-        const page = +req.query.page || 1;
-        const totalCheckins = timesheet.timesheet.length;
+    const page = +req.query.page || 1;
 
-        // get the array of months & values
-        let result = timesheet.timesheet.reduce(function (t, a) {
-          t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
-          t[a._id.slice(5, 7)].push(a);
-          return t;
-        }, Object.create(null));
+    if (e.managerId.toString() !== req.staff._id.toString()) {
+      const error = new Error("Unauthorized.");
+      res.httpStatusCode = 500;
+      return next(error);
+    }
 
-        // sort timesheet by date desc
-        timesheet.timesheet.sort(
-          (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
-        );
-
-        let PagingTimesheet = timesheet.timesheet.slice(
-          (page - 1) * ITEMS_PER_PAGE,
-          (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
-        );
+    Checkin.countDocuments({end: { $ne: null }, staffId: employeeId})
+    .then(sum => {
+      const numberToSkip = (page - 1) * ITEMS_PER_PAGE;
+      const totalCheckins = sum;
+      Timesheet.find({staffId: employeeId}, {timesheet: {$slice: [ numberToSkip, ITEMS_PER_PAGE ]}})
+      .then(timesheet => {
+        if (!timesheet) {
+          const error = new Error("No timesheet.");
+          res.httpStatusCode = 500;
+          return next(error);
+        }
 
         res.render("timesheet-employeeId", {
           staff: e,
           managerName: managerName,
           docTitle: "Tra cứu giờ làm",
           path: "/employeeTimmsheet",
-          timesheet: PagingTimesheet,
-          months: result,
+          timesheet: timesheet[0].timesheet,
+          months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
           noInfo: false,
           isAuthenticated: req.session.isLoggedIn,
           totalCheckins: totalCheckins,
@@ -729,23 +726,71 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
           isManager: req.staff.manager,
           notMonth: true
         });
-      } else {
-        res.redirect(
-          url.format({
-            pathname: "/",
-            query: {
-              noTimesheet: true,
-            },
-          })
-        );
-      }
+      })
     })
+
+    
+    // .then((t) => {
+    //   if (t.length > 0) {
+    //     const timesheet = t[0];
+    //     const page = +req.query.page || 1;
+    //     const totalCheckins = timesheet.timesheet.length;
+
+    //     // get the array of months & values
+    //     let result = timesheet.timesheet.reduce(function (t, a) {
+    //       t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
+    //       t[a._id.slice(5, 7)].push(a);
+    //       return t;
+    //     }, Object.create(null));
+
+    //     // sort timesheet by date desc
+    //     timesheet.timesheet.sort(
+    //       (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
+    //     );
+
+    //     let PagingTimesheet = timesheet.timesheet.slice(
+    //       (page - 1) * ITEMS_PER_PAGE,
+    //       (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+    //     );
+
+    //     res.render("timesheet-employeeId", {
+    //       staff: e,
+    //       managerName: managerName,
+    //       docTitle: "Tra cứu giờ làm",
+    //       path: "/employeeTimmsheet",
+    //       timesheet: PagingTimesheet,
+    //       months: result,
+    //       noInfo: false,
+    //       isAuthenticated: req.session.isLoggedIn,
+    //       totalCheckins: totalCheckins,
+    //       currentPage: page,
+    //       hasNextPage: totalCheckins > page * ITEMS_PER_PAGE,
+    //       hasPreviousPage: page > 1,
+    //       nextPage: page + 1,
+    //       previousPage: page - 1,
+    //       lastPage: Math.ceil(totalCheckins / ITEMS_PER_PAGE),
+    //       isManager: req.staff.manager,
+    //       notMonth: true
+    //     });
+    //   } else {
+    //     res.redirect(
+    //       url.format({
+    //         pathname: "/",
+    //         query: {
+    //           noTimesheet: true,
+    //         },
+    //       })
+    //     );
+    //   }
+    // })
   })
       
     .catch((err) => {
-      const error = new Error("Error occurred.");
-      res.httpStatusCode = 500;
-      return next(error);
+      // const error = new Error("Error occurred.");
+      // res.httpStatusCode = 500;
+      // return next(error);
+
+      console.log(err)
     });
 };
 
