@@ -807,15 +807,12 @@ exports.postDeleteCheckin = (req, res, next) => {
         })
       })
 
-      console.log(index1, index2);
-      console.log(timesheet.timesheet[index1].totalHours);
-
-
       timesheet.timesheet[index1].checkin.splice(index2, 1);
       if (timesheet.timesheet[index1].totalHours - checkin.hour < 0) {
         timesheet.timesheet.splice(index1, 1)
       } else {
         timesheet.timesheet[index1].totalHours = timesheet.timesheet[index1].totalHours - checkin.hour;
+        timesheet.timesheet[index1].hours = timesheet.timesheet[index1].totalHours - timesheet.timesheet[index1].overTime;
       // timesheet.timesheet[index1].overTime = timesheet.timesheet[index1].overTime - checkin.overTime;
       }
 
