@@ -18,10 +18,12 @@
 
                 <% if (noTimesheet==='true' ) { %>
                     <p class="centered"><i class="warning"> Không có thông tin timesheet </i></p>
-                    <% } else { %>
-                        <p></p>
-                        <% } %>
+                    <% } %>
 
+                    <% if (confirmed==='true' ) { %>
+                        <p class="centered"><i class="warning"> Thông tin checkin của tháng đã được chốt </i></p>
+                        <% } %>
+                
                             <% if (!isCheckedIn) { %>
                                 <form class="product-form" action="/" method="POST">
                                     <div class="form-control">
@@ -91,24 +93,18 @@
                                         <% if (cannot==='true' ) { %>
                                             <p class="centered"><i class="warning"> Không đăng ký được vì số giờ nghỉ đã
                                                     quá 8 giờ </i></p>
-                                            <% } else { %>
-                                                <p></p>
-                                                <% } %>
+                                            <% } %>
 
                                                     <% if (holiday==='true' ) { %>
                                                         <p class="centered"><i class="warning"> Không đăng ký được vào
                                                                 ngày nghỉ </i></p>
-                                                        <% } else { %>
-                                                            <p></p>
-                                                            <% } %>
-
+                                                        <% } %>
 
                                                                 <% if (overLeave==='true' ) { %>
                                                                     <p class="centered"><i class="warning"> Không đăng
                                                                             ký được vì quá số ngày nghỉ
                                                                             quy định </i></p>
-                                                                    <% } else { %>
-                                                                        <p></p>
-                                                                        <% } %>
+                                                                    <% } %>
+                                                                    
             </main>
             <%- include('./includes/end.ejs') %>

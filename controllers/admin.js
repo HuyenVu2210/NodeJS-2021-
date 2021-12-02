@@ -100,6 +100,7 @@ exports.getCheckIn = (req, res, next) => {
   let noTimesheet = req.query.noTimesheet;
   let overLeave = req.query.overLeave;
   let holiday = req.query.holiday;
+  let confirmed = req.query.confirmed;
 
   Checkin.find({ staffId: Staff._id, end: null })
     .then((checkin) => {
@@ -121,6 +122,7 @@ exports.getCheckIn = (req, res, next) => {
         holiday: holiday,
         isAuthenticated: req.session.isLoggedIn,
         isManager: req.staff.manager,
+        confirmed: confirmed
       });
     })
     .catch((err) => {
@@ -138,7 +140,14 @@ exports.postCheckIn = (req, res, next) => {
   Confirm.find({ month: checkMonth })
   .then(c => {
     if (c.length > 0) {
-      return res.redirect('/')
+      return res.redirect(
+        url.format({
+          pathname: "/",
+          query: {
+            confirmed: true,
+          },
+        })
+      );
     }
 
     Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
