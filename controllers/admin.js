@@ -11,6 +11,7 @@ const fileHelper = require("../util/file");
 const fs = require("fs");
 const path = require("path");
 const pdfDocument = require("pdfkit");
+var mongoose = require('mongoose');
 
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
@@ -131,69 +132,77 @@ exports.getCheckIn = (req, res, next) => {
 
 // post checkin
 exports.postCheckIn = (req, res, next) => {
-  const checkMonth = Date.now().toISOString().slice(5,7);
-  console.log(checkMonth)
+  const checkDate = new Date();
+  const checkMonth = checkDate.toISOString().slice(5,7);
+  
+  Confirm.find({ month: checkMonth })
+  .then(c => {
+    if (c.length > 0) {
+      return res.redirect('/')
+    }
 
-  // Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
-  //   if (c.length > 0) {
-  //     let existingCheckin = c[0];
-  //     const checkout_time = new Date();
-  //     existingCheckin.end = checkout_time;
-  //     let OT;
-
-  //     let hour =
-  //       checkout_time.getHours() +
-  //       checkout_time.getMinutes() / 60 -
-  //       (existingCheckin.start.getHours() +
-  //         existingCheckin.start.getMinutes() / 60);
-
-  //     existingCheckin.hour = Math.round(hour * 100) / 100;
-
-  //     if (
-  //       moment(
-  //         existingCheckin.date.toISOString().slice(0, 10),
-  //         "YYYY-MM-DD"
-  //       ).isBusinessDay()
-  //     ) {
-  //       OT = hour > 8 ? hour - 8 : 0;
-  //     } else {
-  //       OT = hour;
-  //     }
-
-  //     existingCheckin.overTime = OT;
-
-  //     existingCheckin
-  //       .save()
-  //       .then((results) => {
-  //         res.redirect("/");
-  //       })
-  //       .catch((err) => {
-  //         const error = new Error("Error occurred.");
-  //         res.httpStatusCode = 500;
-  //         return next(error);
-  //       });
-  //   } else {
-  //     let checkin = new Checkin();
-  //     const workplace = req.body.workplace;
-  //     const today = new Date();
-  //     const date = today.toISOString().slice(0, 10);
-
-  //     checkin.workplace = workplace;
-  //     checkin.start = today;
-  //     checkin.date = date;
-  //     checkin.staffId = req.staff._id;
-  //     checkin
-  //       .save()
-  //       .then((results) => {
-  //         res.redirect("/");
-  //       })
-  //       .catch((err) => {
-  //         const error = new Error("Error occurred.");
-  //         res.httpStatusCode = 500;
-  //         return next(error);
-  //       });
-  //   }
-  // });
+    Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
+        if (c.length > 0) {
+          let existingCheckin = c[0];
+          const checkout_time = new Date();
+          existingCheckin.end = checkout_time;
+          let OT;
+    
+          let hour =
+            checkout_time.getHours() +
+            checkout_time.getMinutes() / 60 -
+            (existingCheckin.start.getHours() +
+              existingCheckin.start.getMinutes() / 60);
+    
+          existingCheckin.hour = Math.round(hour * 100) / 100;
+    
+          if (
+            moment(
+              existingCheckin.date.toISOString().slice(0, 10),
+              "YYYY-MM-DD"
+            ).isBusinessDay()
+          ) {
+            OT = hour > 8 ? hour - 8 : 0;
+          } else {
+            OT = hour;
+          }
+    
+          existingCheckin.overTime = OT;
+    
+          existingCheckin
+            .save()
+            .then((results) => {
+              res.redirect("/");
+            })
+            .catch((err) => {
+              const error = new Error("Error occurred.");
+              res.httpStatusCode = 500;
+              return next(error);
+            });
+        } else {
+          let checkin = new Checkin();
+          const workplace = req.body.workplace;
+          const today = new Date();
+          const date = today.toISOString().slice(0, 10);
+    
+          checkin.workplace = workplace;
+          checkin.start = today;
+          checkin.date = date;
+          checkin.staffId = req.staff._id;
+          checkin
+            .save()
+            .then((results) => {
+              res.redirect("/");
+            })
+            .catch((err) => {
+              const error = new Error("Error occurred.");
+              res.httpStatusCode = 500;
+              return next(error);
+            });
+        }
+      });
+    
+  })
 };
 
 // get timesheet
@@ -1084,7 +1093,7 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
           updateCheckinList.push(c._id);
         });
       });
-
+      
       Checkin.find(
         {
           _id: { $in: updateCheckinList },
@@ -1104,9 +1113,14 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
             });
 
             // create new confirm doc for confirmed checkins
+            const confirmedCheckinList = updateCheckinList.map(c => {
+              return { _id: c }
+            })
+
             const confirm = new Confirm({
               month: month,
-              checkins: [...updateCheckinList]
+              staffId: new mongoose.Types.ObjectId(employeeId),
+              checkins: confirmedCheckinList
             })
 
             confirm.save()
