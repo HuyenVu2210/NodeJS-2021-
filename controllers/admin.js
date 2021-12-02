@@ -4,6 +4,7 @@ const Checkin = require("../models/checkin");
 const Dayoff = require("../models/dayoff");
 const Timesheet = require("../models/timesheet");
 const Staff = require("../models/staff");
+const Confirm = require("../models/confirm");
 
 const fileHelper = require("../util/file");
 
@@ -130,66 +131,69 @@ exports.getCheckIn = (req, res, next) => {
 
 // post checkin
 exports.postCheckIn = (req, res, next) => {
-  Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
-    if (c.length > 0) {
-      let existingCheckin = c[0];
-      const checkout_time = new Date();
-      existingCheckin.end = checkout_time;
-      let OT;
+  const checkMonth = Date.now().toISOString().slice(5,7);
+  console.log(checkMonth)
 
-      let hour =
-        checkout_time.getHours() +
-        checkout_time.getMinutes() / 60 -
-        (existingCheckin.start.getHours() +
-          existingCheckin.start.getMinutes() / 60);
+  // Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
+  //   if (c.length > 0) {
+  //     let existingCheckin = c[0];
+  //     const checkout_time = new Date();
+  //     existingCheckin.end = checkout_time;
+  //     let OT;
 
-      existingCheckin.hour = Math.round(hour * 100) / 100;
+  //     let hour =
+  //       checkout_time.getHours() +
+  //       checkout_time.getMinutes() / 60 -
+  //       (existingCheckin.start.getHours() +
+  //         existingCheckin.start.getMinutes() / 60);
 
-      if (
-        moment(
-          existingCheckin.date.toISOString().slice(0, 10),
-          "YYYY-MM-DD"
-        ).isBusinessDay()
-      ) {
-        OT = hour > 8 ? hour - 8 : 0;
-      } else {
-        OT = hour;
-      }
+  //     existingCheckin.hour = Math.round(hour * 100) / 100;
 
-      existingCheckin.overTime = OT;
+  //     if (
+  //       moment(
+  //         existingCheckin.date.toISOString().slice(0, 10),
+  //         "YYYY-MM-DD"
+  //       ).isBusinessDay()
+  //     ) {
+  //       OT = hour > 8 ? hour - 8 : 0;
+  //     } else {
+  //       OT = hour;
+  //     }
 
-      existingCheckin
-        .save()
-        .then((results) => {
-          res.redirect("/");
-        })
-        .catch((err) => {
-          const error = new Error("Error occurred.");
-          res.httpStatusCode = 500;
-          return next(error);
-        });
-    } else {
-      let checkin = new Checkin();
-      const workplace = req.body.workplace;
-      const today = new Date();
-      const date = today.toISOString().slice(0, 10);
+  //     existingCheckin.overTime = OT;
 
-      checkin.workplace = workplace;
-      checkin.start = today;
-      checkin.date = date;
-      checkin.staffId = req.staff._id;
-      checkin
-        .save()
-        .then((results) => {
-          res.redirect("/");
-        })
-        .catch((err) => {
-          const error = new Error("Error occurred.");
-          res.httpStatusCode = 500;
-          return next(error);
-        });
-    }
-  });
+  //     existingCheckin
+  //       .save()
+  //       .then((results) => {
+  //         res.redirect("/");
+  //       })
+  //       .catch((err) => {
+  //         const error = new Error("Error occurred.");
+  //         res.httpStatusCode = 500;
+  //         return next(error);
+  //       });
+  //   } else {
+  //     let checkin = new Checkin();
+  //     const workplace = req.body.workplace;
+  //     const today = new Date();
+  //     const date = today.toISOString().slice(0, 10);
+
+  //     checkin.workplace = workplace;
+  //     checkin.start = today;
+  //     checkin.date = date;
+  //     checkin.staffId = req.staff._id;
+  //     checkin
+  //       .save()
+  //       .then((results) => {
+  //         res.redirect("/");
+  //       })
+  //       .catch((err) => {
+  //         const error = new Error("Error occurred.");
+  //         res.httpStatusCode = 500;
+  //         return next(error);
+  //       });
+  //   }
+  // });
 };
 
 // get timesheet
@@ -847,9 +851,9 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
             staff: e,
             managerName: managerName,
             docTitle: "Tra cứu giờ làm",
-            path: "/employeeTimmsheet",
+            path: "/employeeTimesheet",
             timesheet: mTimesheet,
-            months: result,
+            months: [1,2,3,4,5,6,7,8,9,10,11,12],
             noInfo: false,
             isAuthenticated: req.session.isLoggedIn,
             isManager: req.staff.manager,
@@ -870,9 +874,10 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
     })
 
     .catch((err) => {
-      const error = new Error("Error occurred.");
-      res.httpStatusCode = 500;
-      return next(error);
+      console.log(err)
+      // const error = new Error("Error occurred.");
+      // res.httpStatusCode = 500;
+      // return next(error);
     });
 };
 
@@ -1051,6 +1056,7 @@ exports.getVaccinePdf = (req, res, next) => {
 exports.postEmployeeTimesheetConfirm = (req, res, next) => {
   const month = req.body.month_confirm;
   const employeeId = req.body.staffId_confirm;
+  let updateCheckinList = [];
 
   Timesheet.find({ staffId: employeeId })
     .then((t) => {
@@ -1073,7 +1079,6 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
         nTimesheet = value;
       }
 
-      let updateCheckinList = [];
       nTimesheet.forEach((nt) => {
         nt.checkin.forEach((c) => {
           updateCheckinList.push(c._id);
@@ -1097,9 +1102,19 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
                 }
               });
             });
-            timesheet.save().then((results) => {
-              res.redirect("/employeeTimesheet");
-            });
+
+            // create new confirm doc for confirmed checkins
+            const confirm = new Confirm({
+              month: month,
+              checkins: [...updateCheckinList]
+            })
+
+            confirm.save()
+            .then((results) => {
+              timesheet.save().then((results) => {
+                res.redirect("/employeeTimesheet");
+              });
+            })
           });
         }
       );
