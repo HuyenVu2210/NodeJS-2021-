@@ -505,7 +505,22 @@ exports.postDayoff = (req, res, next) => {
   const houroff = Math.round(req.body.houroff * 100) / 100;
   const reason = req.body.reason;
 
-  if (req.staff.annualLeave - houroff < 0) {
+  const checkMonth = reqdayoff.slice(5,7);
+  
+  Confirm.find({ month: checkMonth })
+  .then(c => {
+    if (c.length > 0) {
+      return res.redirect(
+        url.format({
+          pathname: "/",
+          query: {
+            confirmed: true,
+          },
+        })
+      );
+    }
+
+    if (req.staff.annualLeave - houroff < 0) {
     res.redirect(
       url.format({
         pathname: "/",
@@ -586,6 +601,10 @@ exports.postDayoff = (req, res, next) => {
       }
     });
   }
+  })
+  .catch(err => {
+    console.log(err)
+  })
 };
 
 // get salary
