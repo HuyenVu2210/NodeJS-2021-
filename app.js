@@ -124,9 +124,10 @@ mongoose
     MONGO_URI
   )
   .then((results) => {
-    app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
-      console.log('server is running')
-    });
+    // app.listen(process.env.PORT || 8080, '0.0.0.0', () => {
+    //   console.log('server is running')
+    // });
+    app.listen(3000);
   })
   .catch((err) => {
     console.log(err);
