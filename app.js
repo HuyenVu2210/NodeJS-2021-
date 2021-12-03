@@ -111,12 +111,22 @@ app.get("/500", errorsController.get500);
 app.use("/", errorsController.get404);
 
 app.use((error, req, res, next) => {
+  if (req.staff) {
+    return res.render("500", {
+      docTitle: "Error occurred",
+      path: null,
+      isAuthenticated: req.isLoggedIn,
+      isManager: req.staff.manager,
+    });
+  }
+
   res.render("500", {
     docTitle: "Error occurred",
     path: null,
-    isAuthenticated: req.isLoggedIn,
-    isManager: req.staff.manager,
+    isAuthenticated: false,
+    isManager: true,
   });
+  
 });
 
 mongoose

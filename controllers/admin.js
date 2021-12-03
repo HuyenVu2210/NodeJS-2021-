@@ -408,7 +408,8 @@ exports.postTimesheet = (req, res, next) => {
 
     Timesheet.find({ staffId: req.staff._id }).then((t) => {
       if (t.length > 0) {
-        const timesheet = t[0];
+        let timesheet = t[0];
+        console.log(timesheet)
         const page = +req.query.page || 1;
         const totalCheckins = timesheet.timesheet.length;
 
@@ -459,6 +460,11 @@ exports.postTimesheet = (req, res, next) => {
         );
       }
     });
+  })
+  .catch(err => {
+    const error = new Error("Error occurred.");
+    res.httpStatusCode = 500;
+    return next(error);
   });
 };
 
@@ -603,7 +609,9 @@ exports.postDayoff = (req, res, next) => {
   }
   })
   .catch(err => {
-    console.log(err)
+    const error = new Error("Error occurred.");
+    res.httpStatusCode = 500;
+    return next(error);
   })
 };
 
