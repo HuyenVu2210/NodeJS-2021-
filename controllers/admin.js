@@ -1076,7 +1076,7 @@ exports.getVaccinePdf = (req, res, next) => {
       });
       pdfDoc.text("----------------------");
 
-      pdfDoc.font("Times-Roman").fontSize(18).text("Kết quả xét nghiệm: " + result);
+      pdfDoc.font('public/font/NotoSans-Regular.ttf').fontSize(18).text("Kết quả xét nghiệm: " + result);
       pdfDoc.fontSize(18).text("Nhiệt độ: " + tem);
       pdfDoc.fontSize(18).text("Loại vaccine mũi 1: " + vaccine1);
       pdfDoc.fontSize(18).text("Ngày tiêm mũi 1: " + date1);
