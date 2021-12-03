@@ -216,7 +216,7 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
-  const ITEMS_PER_PAGE = 2;
+  const ITEMS_PER_PAGE = 1;
 
   Staff.findById(req.staff.managerId)
     .then((manager) => {
