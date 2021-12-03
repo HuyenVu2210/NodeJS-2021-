@@ -1,25 +1,29 @@
 const url = require("url");
 
+// import model
 const Checkin = require("../models/checkin");
 const Dayoff = require("../models/dayoff");
 const Timesheet = require("../models/timesheet");
 const Staff = require("../models/staff");
 const Confirm = require("../models/confirm");
 
+// import file handling methods
 const fileHelper = require("../util/file");
 
+// import other modules
 const fs = require("fs");
 const path = require("path");
 const pdfDocument = require("pdfkit");
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // use moment-business-days to check holiday
 // example: moment('01-01-2015', 'DD-MM-YYYY').monthBusinessDays()[0].toDate().toISOString().slice(0,10)
-var moment = require("moment-business-days");
+const moment = require("moment-business-days");
 
-var july4th = "2021-07-04";
-var laborDay = "2021-05-01";
+const july4th = "2021-07-04";
+const laborDay = "2021-05-01";
 
+// set working date to Monday->Friday && location to VN && Holiday
 moment.updateLocale("vn", {
   workingWeekdays: [1, 2, 3, 4, 5],
   holidays: [july4th, laborDay],
@@ -40,12 +44,16 @@ exports.getStaffDetail = (req, res, next) => {
 exports.getEditStaff = (req, res, next) => {
   const staffId = req.params.staffId;
 
+  // check if the request id is the same with req.staff id
   if (staffId !== req.staff._id.toString()) {
     res.redirect("/");
   }
 
+  // find staff info
   Staff.findById(staffId)
     .then((staff) => {
+
+      // redirect if no staff
       if (!staff) {
         res.redirect("/");
       }
@@ -71,15 +79,18 @@ exports.postEditStaff = (req, res, next) => {
   const staffId = req.body.staffId;
   console.log(req.staff._manager);
 
+  // check if the request id is the same with req.staff id
   if (staffId !== req.staff._id.toString()) {
     return res.redirect("/");
   }
 
+  // delete existing file if new image is uploaded
   if (image) {
     fileHelper.deleteFile(req.staff.image);
     req.staff.image = image.path;
   }
 
+  // save staff new info
   req.staff
     .save()
     .then((results) => {
@@ -92,7 +103,7 @@ exports.postEditStaff = (req, res, next) => {
     });
 };
 
-// get check in
+// get check in page
 exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
   let isCheckedIn = false;
@@ -102,9 +113,11 @@ exports.getCheckIn = (req, res, next) => {
   let holiday = req.query.holiday;
   let confirmed = req.query.confirmed;
 
+  // find the checking that have not ended
   Checkin.find({ staffId: Staff._id, end: null })
     .then((checkin) => {
       let Checkin;
+
       if (checkin.length > 0) {
         // do not show checkin form if already checked in and not check out yet
         isCheckedIn = true;
@@ -137,6 +150,7 @@ exports.postCheckIn = (req, res, next) => {
   const checkDate = new Date();
   const checkMonth = checkDate.toISOString().slice(5,7);
   
+  // not allow check in when the month data is already confirmed by manager
   Confirm.find({ month: checkMonth })
   .then(c => {
     if (c.length > 0) {
@@ -150,6 +164,7 @@ exports.postCheckIn = (req, res, next) => {
       );
     }
 
+    // find the checkin that have not ended 
     Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
         if (c.length > 0) {
           let existingCheckin = c[0];
@@ -157,14 +172,17 @@ exports.postCheckIn = (req, res, next) => {
           existingCheckin.end = checkout_time;
           let OT;
     
+          // hour = checkout time - checkin time
           let hour =
             checkout_time.getHours() +
             checkout_time.getMinutes() / 60 -
             (existingCheckin.start.getHours() +
               existingCheckin.start.getMinutes() / 60);
-    
+          
+          // round to 2 decimal number
           existingCheckin.hour = Math.round(hour * 100) / 100;
     
+          // if date is working day => OT = hour - 8, else OT = hour
           if (
             moment(
               existingCheckin.date.toISOString().slice(0, 10),
@@ -176,6 +194,7 @@ exports.postCheckIn = (req, res, next) => {
             OT = hour;
           }
     
+          // save checkin info
           existingCheckin.overTime = OT;
     
           existingCheckin
@@ -189,6 +208,7 @@ exports.postCheckIn = (req, res, next) => {
               return next(error);
             });
         } else {
+          // create and save new checkin
           let checkin = new Checkin();
           const workplace = req.body.workplace;
           const today = new Date();
@@ -198,6 +218,8 @@ exports.postCheckIn = (req, res, next) => {
           checkin.start = today;
           checkin.date = date;
           checkin.staffId = req.staff._id;
+
+          // save checkin data
           checkin
             .save()
             .then((results) => {
@@ -216,13 +238,18 @@ exports.postCheckIn = (req, res, next) => {
 
 // get timesheet
 exports.getTimesheet = (req, res, next) => {
-  const ITEMS_PER_PAGE = 1;
+  // set default item per page to 2
+  const ITEMS_PER_PAGE = 2;
 
+  // find the manager of req.staff
   Staff.findById(req.staff.managerId)
     .then((manager) => {
       let managerName = "";
+      let managerId = "";
+
       if (manager) {
         managerName = manager.name;
+        managerId = manager._id;
       }
 
       Checkin.aggregate(
@@ -322,6 +349,7 @@ exports.getTimesheet = (req, res, next) => {
                     res.render("timesheet", {
                       staff: req.staff,
                       managerName: managerName,
+                      managerId: managerId,
                       docTitle: "Tra cứu giờ làm",
                       path: "/timesheet",
                       timesheet: PagingTimesheet,
@@ -396,14 +424,17 @@ exports.getTimesheet = (req, res, next) => {
     });
 };
 
-// post timesheet
+// let user choose number of item per page
 exports.postTimesheet = (req, res, next) => {
   const ITEMS_PER_PAGE = req.body.pageNum;
 
+  // find the manager of req.staff
   Staff.findById(req.staff.managerId).then((manager) => {
     let managerName = "";
+    let managerId = "";
     if (manager) {
       managerName = manager.name;
+      managerId = manager._id;
     }
 
     Timesheet.find({ staffId: req.staff._id }).then((t) => {
@@ -425,6 +456,7 @@ exports.postTimesheet = (req, res, next) => {
           (a, b) => (a._id.slice(0, 10) > b._id.slice(0, 10) && -1) || 1
         );
 
+        // return items for the current page
         let PagingTimesheet = timesheet.timesheet.slice(
           (page - 1) * ITEMS_PER_PAGE,
           (page - 1) * ITEMS_PER_PAGE + ITEMS_PER_PAGE
@@ -433,6 +465,7 @@ exports.postTimesheet = (req, res, next) => {
         res.render("timesheet", {
           staff: req.staff,
           managerName: managerName,
+          managerId: managerId,
           docTitle: "Tra cứu giờ làm",
           path: "/timesheet",
           timesheet: PagingTimesheet,
@@ -486,6 +519,7 @@ exports.postVaccine = (req, res, next) => {
   const newDate = new Date();
   const newDate1 = newDate.toISOString().slice(0, 10) + "T00:00:00.000+00:00";
 
+  // set date default to new Date if there is no date data
   const date1 = req.body.date1 === "" ? newDate1 : req.body.date1;
   const shot2 = req.body.shot2;
   const date2 = req.body.date2 === "" ? newDate1 : req.body.date2;
@@ -511,10 +545,14 @@ exports.postDayoff = (req, res, next) => {
   const houroff = Math.round(req.body.houroff * 100) / 100;
   const reason = req.body.reason;
 
+  // get the month of new day off request
   const checkMonth = reqdayoff.slice(5,7);
   
+  // find if data of that month is already confirmed
   Confirm.find({ month: checkMonth })
   .then(c => {
+
+    // return checkin page if data of that month is already confirmed
     if (c.length > 0) {
       return res.redirect(
         url.format({
@@ -526,6 +564,7 @@ exports.postDayoff = (req, res, next) => {
       );
     }
 
+    // return checkin page if staff has not enough day off
     if (req.staff.annualLeave - houroff < 0) {
     res.redirect(
       url.format({
@@ -536,6 +575,7 @@ exports.postDayoff = (req, res, next) => {
       })
     );
   } else if (!moment(reqdayoff, "YYYY-MM-DD").isBusinessDay()) {
+    // return checkin page if request date is not working day
     res.redirect(
       url.format({
         pathname: "/",
@@ -550,6 +590,8 @@ exports.postDayoff = (req, res, next) => {
       if (dayoff.length > 0) {
         let existingDayoff = dayoff[0];
         let existingHoursOff = existingDayoff.totalHoursOff;
+
+        // caculate total hour (if total > 8 then not update total hour)
         let totalHoursOff =
           existingHoursOff + houroff < 8
             ? existingHoursOff + houroff
@@ -558,14 +600,17 @@ exports.postDayoff = (req, res, next) => {
         existingDayoff.totalHoursOff = totalHoursOff;
         existingDayoff.reason = reason === "" ? "" : reason;
 
+        // if existing hour + new off hour > 8 then not allow request day off
         const cannot = totalHoursOff !== existingHoursOff + houroff;
 
+        // save day off data
         existingDayoff.save().then((results) => {
           req.staff.annualLeave =
             totalHoursOff !== existingHoursOff + houroff
               ? req.staff.annualLeave
               : req.staff.annualLeave - totalHoursOff;
 
+          // update staff data (annualLeave)
           req.staff.save().then((results) => {
             res.redirect(
               url.format({
@@ -581,6 +626,7 @@ exports.postDayoff = (req, res, next) => {
         let month = reqdayoff.slice(5, 7);
 
         if (houroff < 8) {
+          // create and save new dayoff
           const newDayoff = new Dayoff({
             staffId: req.staff._id,
             date: reqdayoff,
@@ -595,6 +641,7 @@ exports.postDayoff = (req, res, next) => {
             });
           });
         } else {
+          // not allow taking more than 8 hours off per day
           res.redirect(
             url.format({
               pathname: "/",
@@ -618,10 +665,13 @@ exports.postDayoff = (req, res, next) => {
 // get salary
 exports.getSalary = (req, res, next) => {
   const month = req.params.month;
+
+  // find timesheet of the month
   Timesheet.find({ staffId: req.staff._id }).then((t) => {
     if (t.length > 0) {
       const timesheet = t[0];
 
+      // get checkin data of each month
       let result = timesheet.timesheet.reduce(function (t, a) {
         t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
         t[a._id.slice(5, 7)].push(a);
@@ -738,29 +788,34 @@ exports.getEmployeeTimesheetWithId = (req, res, next) => {
   const employeeId = req.params.employeeId;
   let managerName = req.staff.name;
 
+  // redirect if request id is not formal for object id
   if (!employeeId.match(/^[0-9a-fA-F]{24}$/)) {
     return res.redirect('/employeeTimesheet')
   } else {
     Staff.findById(employeeId)
       .then((employee) => {
+
+        // redirect if no staff is found
         if (!employee) {
           return res.redirect('/employeeTimesheet')
         }
         const page = +req.query.page || 1;
         let e = employee;
 
+        // redirect if the staff's manager is not req.staff
         if (e.managerId.toString() !== req.staff._id.toString()) {
-          const error = new Error("Unauthorized.");
-          res.httpStatusCode = 500;
-          return next(error);
+          return res.redirect('/employeeTimesheet')
         }
 
+        // count total number of checkin dates
         Checkin.countDocuments({
           end: { $ne: null },
           staffId: employeeId,
         }).then((sum) => {
           const numberToSkip = (page - 1) * ITEMS_PER_PAGE;
           const totalCheckins = sum;
+
+          // get only the items for render
           Timesheet.find(
             { staffId: employeeId },
             { timesheet: { $slice: [numberToSkip, ITEMS_PER_PAGE] } }
@@ -879,6 +934,7 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
             ([key, value]) => key === month
           );
 
+          // redirect if no data for requested month
           if (!found) {
             return res.redirect("/");
           }
@@ -919,10 +975,9 @@ exports.postEmployeeTimesheetWithId = (req, res, next) => {
     })
 
     .catch((err) => {
-      console.log(err)
-      // const error = new Error("Error occurred.");
-      // res.httpStatusCode = 500;
-      // return next(error);
+      const error = new Error("Error occurred.");
+      res.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -931,6 +986,7 @@ exports.postDeleteCheckin = (req, res, next) => {
   const checkinId = req.body.checkinId;
   const employeeId = req.body.employeeId;
 
+  // find the checkin in request
   Checkin.findById(checkinId)
     .then((checkin) => {
       Timesheet.find({ staffId: employeeId }).then((t) => {
@@ -938,6 +994,7 @@ exports.postDeleteCheckin = (req, res, next) => {
         let index1;
         let index2;
 
+        // loop to find the index of the checkin in timesheet
         timesheet.timesheet.forEach((i, indexA) => {
           i.checkin.forEach((c, indexB) => {
             if (c._id.toString() === checkinId.toString()) {
@@ -947,10 +1004,13 @@ exports.postDeleteCheckin = (req, res, next) => {
           });
         });
 
+        // delete the checkin from timesheet
         timesheet.timesheet[index1].checkin.splice(index2, 1);
         if (timesheet.timesheet[index1].totalHours - checkin.hour < 0) {
+          // if that the only checkin of the day then delete that date in timesheet
           timesheet.timesheet.splice(index1, 1);
         } else {
+          // if there are multiple checkin in that date then update total Hours, OT
           timesheet.timesheet[index1].totalHours =
             timesheet.timesheet[index1].totalHours - checkin.hour;
           timesheet.timesheet[index1].hours =
@@ -959,7 +1019,9 @@ exports.postDeleteCheckin = (req, res, next) => {
           // timesheet.timesheet[index1].overTime = timesheet.timesheet[index1].overTime - checkin.overTime;
         }
 
+        // save timesheet new info
         timesheet.save().then((results) => {
+          // delete the checkin in request
           Checkin.findByIdAndDelete(checkinId).then((results) => {
             res.redirect("/employeeTimesheet");
           });
@@ -996,15 +1058,19 @@ exports.getEmployeeVaccine = (req, res, next) => {
 exports.getEmployeeVaccineWithId = (req, res, next) => {
   const employeeId = req.params.employeeId;
 
+  // redirect if request id is not formal for object id
   if (!employeeId.match(/^[0-9a-fA-F]{24}$/)) {
     return res.redirect('/employeeVaccine')
   } else {
     Staff.findById(employeeId)
       .then((employee) => {
+
+        // redirect if no staff is found
         if (!employee) {
           return res.redirect("/employeeVaccine");
         }
 
+        // redirect if the found staff's manager is not req.staff
         if (employee.managerId.toString() !== req.staff._id.toString()) {
           return res.redirect("/");
         }
@@ -1028,20 +1094,26 @@ exports.getEmployeeVaccineWithId = (req, res, next) => {
 exports.getVaccinePdf = (req, res, next) => {
   const employeeId = req.params.employeeId;
 
+  // redirect if request id is not formal for object id
   if (!employeeId.match(/^[0-9a-fA-F]{24}$/)) {
     res.redirect('employeeVaccine')
   } else {
     Staff.findById(employeeId)
     .then((staff) => {
+
+      // redirect if no staff is found
       if (!staff) {
         res.redirect('employeeVaccine')
       }
+
+      // redirect if the found staff's manager is not req.staff
       if (staff.managerId.toString() !== req.staff._id.toString()) {
         const error = new Error("Unauthorized");
         res.httpStatusCode = 500;
         return next(error);
       }
 
+      // handle pdf file 
       const pdfName = "VaccineInfo-" + staff.name + ".pdf";
       const pdfPath = path.join("data", "pdf", pdfName);
 
@@ -1053,6 +1125,7 @@ exports.getVaccinePdf = (req, res, next) => {
         'inline; filename="' + pdfName + '"'
       );
 
+      // get staff vaccine info
       const result = staff.covid.result ? staff.covid.result : "N/a";
       const tem = staff.covid.tem ? staff.covid.tem : "N/a";
       const vaccine1 = staff.covid.vaccine[0]
@@ -1068,6 +1141,7 @@ exports.getVaccinePdf = (req, res, next) => {
         ? staff.covid.vaccine[1]["date"].toISOString().slice(0, 10)
         : "N/a";
 
+      // create pdf file content
       pdfDoc.pipe(fs.createWriteStream(pdfPath));
       pdfDoc.pipe(res);
 
@@ -1101,10 +1175,12 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
   const employeeId = req.body.staffId_confirm;
   let updateCheckinList = [];
 
+  // find the timesheet of request staff
   Timesheet.find({ staffId: employeeId })
     .then((t) => {
       let timesheet = t[0];
 
+      // find checkin data of each month
       let result = timesheet.timesheet.reduce(function (t, a) {
         t[a._id.slice(5, 7)] = t[a._id.slice(5, 7)] || [];
         t[a._id.slice(5, 7)].push(a);
@@ -1116,28 +1192,32 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
         ([key, value]) => key === month
       );
 
+      // save checkin array in a new array
       let nTimesheet;
-
       for (const [key, value] of Object.entries(found)) {
         nTimesheet = value;
       }
 
+      // save checkin id in a new array
       nTimesheet.forEach((nt) => {
         nt.checkin.forEach((c) => {
           updateCheckinList.push(c._id);
         });
       });
       
+      // find the array of checkins
       Checkin.find(
         {
           _id: { $in: updateCheckinList },
         },
         function (err, checkins) {
           const abc = checkins.map((checkin) => {
+            // set confirm to true
             checkin.confirm = true;
             return checkin.save();
           });
           Promise.all(abc).then(function (r) {
+            // update checkin info in timesheet
             timesheet.timesheet.forEach((t) => {
               t.checkin.forEach((c) => {
                 if (updateCheckinList.includes(c._id)) {
@@ -1157,6 +1237,7 @@ exports.postEmployeeTimesheetConfirm = (req, res, next) => {
               checkins: confirmedCheckinList
             })
 
+            // save new confirm
             confirm.save()
             .then((results) => {
               timesheet.save().then((results) => {
