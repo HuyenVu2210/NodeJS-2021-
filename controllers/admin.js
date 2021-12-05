@@ -185,7 +185,7 @@ exports.postCheckIn = (req, res, next) => {
         if (c.length > 0) {
           let existingCheckin = c[0];
 
-          if (c.date.slice(0,10) !== checkDate.toISOString().slice(0,10)) {
+          if (existingCheckin.date.toISOString().slice(0,10) !== checkDate.toISOString().slice(0,10)) {
             return res.redirect(
               url.format({
                 pathname: "/",
