@@ -106,12 +106,27 @@ exports.postEditStaff = (req, res, next) => {
 // get check in page
 exports.getCheckIn = (req, res, next) => {
   const Staff = req.staff;
+  
+  // check if already checked in
   let isCheckedIn = false;
+
+  // check if the request dayoff is avaiable
   let cannot = req.query.cannot;
+
+  // redirect when access timesheet page with no timesheet data
   let noTimesheet = req.query.noTimesheet;
+
+  // check if total hours of request day off >= 8 hours
   let overLeave = req.query.overLeave;
+
+  // check if request day off on holiday
   let holiday = req.query.holiday;
+
+  // redirect when try to checkin in month with data already confirmed by admin
   let confirmed = req.query.confirmed;
+
+  // check if the checkin date & checkout date is the same 
+  let wrongDate = req.query.wrongDate;
 
   // find the checking that have not ended
   Checkin.find({ staffId: Staff._id, end: null })
@@ -135,7 +150,8 @@ exports.getCheckIn = (req, res, next) => {
         holiday: holiday,
         isAuthenticated: req.session.isLoggedIn,
         isManager: req.staff.manager,
-        confirmed: confirmed
+        confirmed: confirmed,
+        wrongDate: wrongDate,
       });
     })
     .catch((err) => {
@@ -168,6 +184,17 @@ exports.postCheckIn = (req, res, next) => {
     Checkin.find({ staffId: req.staff._id, end: null }).then((c) => {
         if (c.length > 0) {
           let existingCheckin = c[0];
+
+          if (c.date.slice(0,10) !== checkDate.toISOString().slice(0,10)) {
+            return res.redirect(
+              url.format({
+                pathname: "/",
+                query: {
+                  wrongDate: true,
+                },
+              })
+            );
+          }
           const checkout_time = new Date();
           existingCheckin.end = checkout_time;
           let OT;

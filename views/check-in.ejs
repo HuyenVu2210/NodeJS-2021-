@@ -20,6 +20,10 @@
                     <p class="centered"><i class="warning"> Không có thông tin timesheet </i></p>
                     <% } %>
 
+                    <% if (wrongDate==='true' ) { %>
+                        <p class="centered"><i class="warning"> Thời gian checkin và checkout không chính xác, hãy liên hệ admin </i></p>
+                        <% } %>
+
                     <% if (confirmed==='true' ) { %>
                         <p class="centered"><i class="warning"> Thông tin checkin của tháng đã được chốt </i></p>
                         <% } %>
